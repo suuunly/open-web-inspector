@@ -175,6 +175,8 @@
     async function initialize() {
         try {
             log('🚀 Initializing Open Web Inspector Extension...');
+            log('Current page URL:', window.location.href);
+            log('Document ready state:', document.readyState);
             
             // Inject the inspector
             await injectOpenWebInspector();
@@ -186,6 +188,7 @@
             setupKeyboardShortcuts();
             
             log('✅ Extension initialized successfully!');
+            log('OpenWebInspector available:', typeof window.OpenWebInspector);
             
             // Show a subtle notification (can be disabled)
             if (CONFIG.debugMode) {
@@ -200,6 +203,7 @@
             
         } catch (error) {
             log('❌ Extension initialization failed:', error);
+            console.error('[Open Web Inspector Extension] Detailed error:', error);
         }
     }
     

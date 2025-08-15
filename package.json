@@ -7,9 +7,12 @@
   "scripts": {
     "dev": "python3 -m http.server 8002",
     "test": "echo \"Navigate to http://localhost:8002/examples/ to test the functionality\" && npm run dev",
-    "build": "npm run clean && npm run build:dev && npm run build:prod",
+    "build": "npm run clean && npm run build:dev && npm run build:prod && npm run build:extension",
     "build:dev": "cp src/index.js dist/open-web-inspector.js",
     "build:prod": "terser src/index.js -o dist/open-web-inspector.min.js --compress passes=3,drop_console=true,drop_debugger=true,pure_funcs=['console.log','console.debug','console.info'] --mangle --source-map --comments false",
+    "build:extension": "echo \"📦 Building Chrome extension...\" && npm run build:extension:chrome",
+    "build:extension:chrome": "echo \"✅ Chrome extension files ready in extensions/chrome/\"",
+    "dev:extension": "echo \"🔧 Chrome extension ready for developer mode loading from extensions/chrome/\"",
     "clean": "rm -rf dist/*.js dist/*.map",
     "prepare": "npm run build",
     "version:patch": "npm version patch && npm run build",
@@ -57,6 +60,7 @@
     "src/",
     "dist/",
     "examples/",
+    "extensions/",
     "README.md",
     "LICENSE"
   ],

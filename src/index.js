@@ -440,7 +440,7 @@
 
                 .open-web-inspector-element-path {
                     background: #f7fafc !important;
-                    padding: 15px !important;
+                    padding: 8px 12px !important;
                     border-radius: 0 0 6px 6px !important;
                     margin: 0 !important;
                     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
@@ -669,8 +669,8 @@
                     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
                 }
 
-                .open-web-inspector-fab-button.ai {
-                    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;
+                .open-web-inspector-fab-button.natural-language {
+                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
                 }
 
                 .open-web-inspector-fab-tooltip {
@@ -749,6 +749,95 @@
                 .open-web-inspector-panel-close:hover {
                     background: rgba(255, 255, 255, 0.3) !important;
                     transform: scale(1.1) !important;
+                }
+
+                .open-web-inspector-panel-header-actions {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 10px !important;
+                }
+
+                .open-web-inspector-copy-ai-instructions-btn {
+                    background: rgba(255, 255, 255, 0.9) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                    color: #4a5568 !important;
+                    padding: 6px 12px !important;
+                    border-radius: 6px !important;
+                    font-size: 12px !important;
+                    cursor: pointer !important;
+                    transition: all 0.2s ease !important;
+                    font-weight: 600 !important;
+                    backdrop-filter: blur(10px) !important;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+                }
+
+                .open-web-inspector-copy-ai-instructions-btn:hover {
+                    background: rgba(255, 255, 255, 1) !important;
+                    transform: translateY(-1px) !important;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+                    color: #2d3748 !important;
+                }
+
+                /* Natural Language Panel Styling */
+                .open-web-inspector-natural-language-panel {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                    border: none !important;
+                    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4) !important;
+                    z-index: 1000000 !important; /* Higher than FAB popup (999999) */
+                }
+
+                .open-web-inspector-natural-language-panel .open-web-inspector-panel-header {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    backdrop-filter: blur(10px) !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+                }
+
+                .open-web-inspector-ask-ai-title {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 2px !important;
+                }
+
+                .open-web-inspector-ask-ai-main-title {
+                    color: white !important;
+                    font-weight: 700 !important;
+                    font-size: 16px !important;
+                    line-height: 1.2 !important;
+                }
+
+                .open-web-inspector-ask-ai-subtitle {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-weight: 400 !important;
+                    font-size: 12px !important;
+                    line-height: 1.2 !important;
+                    opacity: 0.9 !important;
+                }
+
+                .open-web-inspector-natural-language-panel .open-web-inspector-panel-content {
+                    background: rgba(255, 255, 255, 0.95) !important;
+                    backdrop-filter: blur(10px) !important;
+                }
+
+                /* Code Panel Title Styling */
+                .open-web-inspector-code-panel-title {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 2px !important;
+                }
+
+                .open-web-inspector-code-panel-main-title {
+                    color: white !important;
+                    font-weight: 700 !important;
+                    font-size: 16px !important;
+                    line-height: 1.2 !important;
+                }
+
+                .open-web-inspector-code-panel-subtitle {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-weight: 400 !important;
+                    font-size: 12px !important;
+                    line-height: 1.2 !important;
+                    opacity: 0.9 !important;
                 }
 
                 .open-web-inspector-panel-content {
@@ -1082,12 +1171,13 @@
         }
 
         isOurElement(element) {
-            return element.closest('.open-web-inspector-popup, .open-web-inspector-overlay, .open-web-inspector-fab-popup, .open-web-inspector-panel') ||
+            return element.closest('.open-web-inspector-popup, .open-web-inspector-overlay, .open-web-inspector-fab-popup, .open-web-inspector-panel, .open-web-inspector-natural-language-panel') ||
                    element.id === 'analyzeToggle' ||
                    element.classList.contains('open-web-inspector-popup') ||
                    element.classList.contains('open-web-inspector-overlay') ||
                    element.classList.contains('open-web-inspector-fab-popup') ||
-                   element.classList.contains('open-web-inspector-panel');
+                   element.classList.contains('open-web-inspector-panel') ||
+                   element.classList.contains('open-web-inspector-natural-language-panel');
         }
 
         highlightElement(element) {
@@ -1150,21 +1240,17 @@
                     <span class="open-web-inspector-fab-label">Capture</span>
                     <div class="open-web-inspector-fab-tooltip">Screenshot</div>
                 </button>
-                <button class="open-web-inspector-fab-button ai" data-action="ai">
+                <button class="open-web-inspector-fab-button natural-language" data-action="natural-language">
                     <svg viewBox="0 0 24 24">
-                        <!-- Large sparkle -->
-                        <path d="M12,2 L13.5,8.5 L20,10 L13.5,11.5 L12,18 L10.5,11.5 L4,10 L10.5,8.5 Z" fill="currentColor"/>
-                        <!-- Medium sparkle top-right -->
-                        <path d="M18,4 L18.8,6.2 L21,7 L18.8,7.8 L18,10 L17.2,7.8 L15,7 L17.2,6.2 Z" fill="currentColor" opacity="0.8"/>
-                        <!-- Small sparkle bottom-left -->
-                        <path d="M6,16 L6.5,17.5 L8,18 L6.5,18.5 L6,20 L5.5,18.5 L4,18 L5.5,17.5 Z" fill="currentColor" opacity="0.6"/>
-                        <!-- Tiny sparkle top-left -->
-                        <circle cx="7" cy="6" r="1" fill="currentColor" opacity="0.5"/>
-                        <!-- Tiny sparkle bottom-right -->
-                        <circle cx="19" cy="17" r="0.8" fill="currentColor" opacity="0.4"/>
+                        <!-- Chat bubble -->
+                        <path d="M20 2H4A2 2 0 0 0 2 4V16A2 2 0 0 0 4 18H18L22 22V4A2 2 0 0 0 20 2M4 4H20V16H17.17L16 17.17L14.83 16H4V4M6 7V9H12V7H6M6 11V13H15V11H6Z"/>
+                        <!-- AI sparkles -->
+                        <circle cx="17" cy="6" r="0.8" fill="currentColor" opacity="0.6"/>
+                        <circle cx="18" cy="8" r="0.6" fill="currentColor" opacity="0.4"/>
+                        <circle cx="16" cy="9" r="0.5" fill="currentColor" opacity="0.5"/>
                     </svg>
-                    <span class="open-web-inspector-fab-label">AI Snap</span>
-                    <div class="open-web-inspector-fab-tooltip">AI Snapshot</div>
+                    <span class="open-web-inspector-fab-label">Ask</span>
+                    <div class="open-web-inspector-fab-tooltip">Ask AI to modify this element</div>
                 </button>
             `;
 
@@ -1189,8 +1275,8 @@
                         case 'screenshot':
                             this.takeElementScreenshot(element);
                             break;
-                        case 'ai':
-                            this.generateAISnapshot(element);
+                        case 'natural-language':
+                            this.openNaturalLanguageInterface(element);
                             break;
                     }
                 });
@@ -1247,7 +1333,7 @@
                 </div>
                 <div class="open-web-inspector-panel-content">
                     <div style="padding: 20px;">
-                        <h4>Applied CSS Styles: <small style="color: #3498db; font-weight: normal; font-size: 10px;">✏️ Edit live! 📁 Expand/collapse 👨‍👩‍👧‍👦 Shows inherited</small></h4>
+                        <div style="color: #3498db; font-weight: normal; font-size: 12px; margin-bottom: 15px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #3498db;">✏️ Edit live! 📁 Expand/collapse 👨‍👩‍👧‍👦 Shows inherited</div>
                         <div class="open-web-inspector-css-rules-container">
                             ${this.generateCSSStyles(element)}
                         </div>
@@ -1284,10 +1370,7 @@
                 </div>
                 <div class="open-web-inspector-panel-content">
                     <div style="padding: 20px;">
-                        <h4>Element Tree</h4>
-                        <div class="open-web-inspector-element-path" style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre; overflow-x: auto; line-height: 1.6; margin-bottom: 20px;">
-                            ${this.getElementPath(element)}
-                        </div>
+                        <div class="open-web-inspector-element-path" style="background: #f8f9fa; padding: 8px 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre; overflow-x: auto; line-height: 1.6; margin-bottom: 20px;">${this.getElementPath(element)}</div>
                         
                         <div class="open-web-inspector-sub-tabs">
                             <button class="open-web-inspector-sub-tab active" data-tab="preview">Preview</button>
@@ -1427,8 +1510,14 @@
             
             this.codePanel.innerHTML = `
                 <div class="open-web-inspector-panel-header">
-                    <span>📝 Code Inspector - ${this.getElementTitle(element)}</span>
-                    <button class="open-web-inspector-panel-close">×</button>
+                    <div class="open-web-inspector-code-panel-title">
+                        <div class="open-web-inspector-code-panel-main-title">📝 Code Inspector</div>
+                        <div class="open-web-inspector-code-panel-subtitle">${this.getElementTitle(element)}</div>
+                    </div>
+                    <div class="open-web-inspector-panel-header-actions">
+                        <button class="open-web-inspector-copy-ai-instructions-btn" type="button">🤖 Copy AI Instructions</button>
+                        <button class="open-web-inspector-panel-close">×</button>
+                    </div>
                 </div>
                 <div class="open-web-inspector-panel-content">
                     <div class="open-web-inspector-code-tabs">
@@ -1439,10 +1528,7 @@
                     <!-- HTML Tab Content -->
                     <div class="open-web-inspector-code-tab-content active" data-tab-content="html">
                         <div style="padding: 20px;">
-                            <h4>Element Tree</h4>
-                            <div class="open-web-inspector-element-path" style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre; overflow-x: auto; line-height: 1.6; margin-bottom: 20px;">
-                                ${this.getElementPath(element)}
-                            </div>
+                            <div class="open-web-inspector-element-path" style="background: #f8f9fa; padding: 8px 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre; overflow-x: auto; line-height: 1.6; margin-bottom: 20px;">${this.getElementPath(element)}</div>
                             
                             <div class="open-web-inspector-sub-tabs">
                                 <button class="open-web-inspector-sub-tab active" data-tab="preview">Preview</button>
@@ -1464,7 +1550,7 @@
                     <!-- CSS Tab Content -->
                     <div class="open-web-inspector-code-tab-content" data-tab-content="css">
                         <div style="padding: 20px;">
-                            <h4>Applied CSS Styles: <small style="color: #3498db; font-weight: normal; font-size: 10px;">✏️ Edit live! 📁 Expand/collapse 👨‍👩‍👧‍👦 Shows inherited</small></h4>
+                            <div style="color: #3498db; font-weight: normal; font-size: 12px; margin-bottom: 15px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #3498db;">✏️ Edit live! 📁 Expand/collapse 👨‍👩‍👧‍👦 Shows inherited</div>
                             <div class="open-web-inspector-css-rules-container">
                                 ${this.generateCSSStyles(element)}
                             </div>
@@ -1518,6 +1604,12 @@
             const closeBtn = panel.querySelector('.open-web-inspector-panel-close');
             closeBtn.addEventListener('click', () => this.closePanels());
             
+            // Set up Copy AI Instructions button
+            const aiInstructionsBtn = panel.querySelector('.open-web-inspector-copy-ai-instructions-btn');
+            if (aiInstructionsBtn) {
+                aiInstructionsBtn.addEventListener('click', () => this.generateAISnapshot(element));
+            }
+            
             // Clean up any existing panel outside click handler
             if (this.panelOutsideClickHandler) {
                 document.removeEventListener('click', this.panelOutsideClickHandler);
@@ -1569,6 +1661,10 @@
                 this.codePanel.remove();
                 this.codePanel = null;
             }
+            if (this.naturalLanguagePanel) {
+                this.naturalLanguagePanel.remove();
+                this.naturalLanguagePanel = null;
+            }
             
             // Clean up panel outside click handler
             if (this.panelOutsideClickHandler) {
@@ -1587,7 +1683,6 @@
                     <h3 class="open-web-inspector-popup-title">${this.getElementTitle(element)}</h3>
                     <div class="open-web-inspector-popup-header-actions">
                         <button class="open-web-inspector-screenshot-btn" type="button">📸 Screenshot</button>
-                        <button class="open-web-inspector-ai-snapshot-btn" type="button">🤖 AI Snapshot</button>
                         <button class="open-web-inspector-popup-close" type="button">&times;</button>
                     </div>
                 </div>
@@ -1600,7 +1695,6 @@
                     
                     <div class="open-web-inspector-tab-content active" data-tab-content="html">
                         <div class="open-web-inspector-element-tree-section">
-                            <div class="open-web-inspector-element-tree-header">🌳 Element Tree</div>
                             <div class="open-web-inspector-element-path">${elementPath}</div>
                         </div>
                         
@@ -1621,7 +1715,7 @@
                     </div>
                     
                     <div class="open-web-inspector-tab-content" data-tab-content="css">
-                        <h4>Applied CSS Styles: <small style="color: #3498db; font-weight: normal; font-size: 10px;">✏️ Edit live! 📁 Expand/collapse 👨‍👩‍👧‍👦 Shows inherited</small></h4>
+                        <div style="color: #3498db; font-weight: normal; font-size: 12px; margin-bottom: 15px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #3498db;">✏️ Edit live! 📁 Expand/collapse 👨‍👩‍👧‍👦 Shows inherited</div>
                         <div class="open-web-inspector-css-rules-container">
                             ${this.generateCSSStyles(element)}
                         </div>
@@ -1644,7 +1738,172 @@
             return `Element Inspector - ${elementTag}${elementInfo}`;
         }
 
-        async generateAISnapshot(element) {
+        openNaturalLanguageInterface(element) {
+            // Close any existing panels first
+            this.closePanels();
+            
+            // Calculate position for the natural language interface
+            const rect = element.getBoundingClientRect();
+            let interfaceX = Math.min(rect.right + 10, window.innerWidth - 350);
+            let interfaceY = Math.min(rect.top, window.innerHeight - 200);
+            
+            // Adjust position to avoid overlapping with FAB popup if it exists
+            if (this.fabPopup) {
+                const fabRect = this.fabPopup.getBoundingClientRect();
+                // If our panel would overlap with FAB, position it below the FAB
+                if (interfaceX < fabRect.right + 10 && interfaceY < fabRect.bottom + 10) {
+                    interfaceY = Math.max(fabRect.bottom + 10, interfaceY);
+                    // Make sure it still fits on screen
+                    if (interfaceY + 200 > window.innerHeight) {
+                        interfaceY = window.innerHeight - 210;
+                    }
+                }
+            }
+            
+            // Create natural language interface panel
+            this.naturalLanguagePanel = document.createElement('div');
+            this.naturalLanguagePanel.className = 'open-web-inspector-panel open-web-inspector-natural-language-panel';
+            this.naturalLanguagePanel.style.left = interfaceX + 'px';
+            this.naturalLanguagePanel.style.top = interfaceY + 'px';
+            this.naturalLanguagePanel.style.width = '320px';
+            this.naturalLanguagePanel.style.maxHeight = '200px';
+            
+            this.naturalLanguagePanel.innerHTML = `
+                <div class="open-web-inspector-panel-header">
+                    <div class="open-web-inspector-ask-ai-title">
+                        <div class="open-web-inspector-ask-ai-main-title">💬 Ask AI</div>
+                        <div class="open-web-inspector-ask-ai-subtitle">${this.getElementTitle(element)}</div>
+                    </div>
+                    <button class="open-web-inspector-panel-close">×</button>
+                </div>
+                <div class="open-web-inspector-panel-content">
+                    <div style="padding: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">
+                                What would you like to do with this element?
+                            </label>
+                            <input type="text" 
+                                   class="open-web-inspector-natural-language-input" 
+                                   placeholder="e.g., Make this text red, increase the spacing, add a border..."
+                                   style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 6px; font-size: 14px; font-family: inherit;"
+                                   maxlength="200">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <button class="open-web-inspector-natural-language-cancel" 
+                                    style="padding: 8px 16px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                                Cancel
+                            </button>
+                            <button class="open-web-inspector-natural-language-copy" 
+                                    style="padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">
+                                📋 Copy AI Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(this.naturalLanguagePanel);
+            
+            // Set up event handlers
+            this.setupNaturalLanguageHandlers(element);
+            
+            // Make panel draggable
+            this.makePanelDraggable(this.naturalLanguagePanel);
+            
+            // Focus the input field
+            const input = this.naturalLanguagePanel.querySelector('.open-web-inspector-natural-language-input');
+            if (input) {
+                setTimeout(() => input.focus(), 100);
+            }
+        }
+
+        setupNaturalLanguageHandlers(element) {
+            if (!this.naturalLanguagePanel) return;
+            
+            const closeBtn = this.naturalLanguagePanel.querySelector('.open-web-inspector-panel-close');
+            const cancelBtn = this.naturalLanguagePanel.querySelector('.open-web-inspector-natural-language-cancel');
+            const copyBtn = this.naturalLanguagePanel.querySelector('.open-web-inspector-natural-language-copy');
+            const input = this.naturalLanguagePanel.querySelector('.open-web-inspector-natural-language-input');
+            
+            // Close handlers
+            const closeHandler = () => this.closePanels();
+            closeBtn.addEventListener('click', closeHandler);
+            cancelBtn.addEventListener('click', closeHandler);
+            
+            // Copy button handler
+            copyBtn.addEventListener('click', () => this.generateAISnapshotWithRequest(element));
+            
+            // Enter key handler
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.generateAISnapshotWithRequest(element);
+                }
+            });
+            
+            // Input validation and button state
+            const updateButtonState = () => {
+                const hasText = input.value.trim().length > 0;
+                copyBtn.disabled = !hasText;
+                copyBtn.style.opacity = hasText ? '1' : '0.6';
+                copyBtn.style.cursor = hasText ? 'pointer' : 'not-allowed';
+            };
+            
+            input.addEventListener('input', updateButtonState);
+            updateButtonState(); // Initial state
+            
+            // Outside click handler
+            this.naturalLanguageOutsideClickHandler = (e) => {
+                if (!this.isOurElement(e.target)) {
+                    this.closePanels();
+                }
+            };
+            
+            setTimeout(() => {
+                document.addEventListener('click', this.naturalLanguageOutsideClickHandler, { once: true });
+            }, 100);
+        }
+
+        async generateAISnapshotWithRequest(element) {
+            const input = this.naturalLanguagePanel?.querySelector('.open-web-inspector-natural-language-input');
+            const userRequest = input?.value.trim() || '';
+            
+            if (!userRequest) {
+                // Flash the input to indicate it's required
+                if (input) {
+                    input.style.borderColor = '#e74c3c';
+                    setTimeout(() => {
+                        input.style.borderColor = '#e1e8ed';
+                    }, 1000);
+                }
+                return;
+            }
+            
+            // Show loading state
+            const copyBtn = this.naturalLanguagePanel?.querySelector('.open-web-inspector-natural-language-copy');
+            if (copyBtn) {
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '⏳ Generating...';
+                copyBtn.disabled = true;
+                
+                try {
+                    // Generate the enhanced AI snapshot with user request
+                    await this.generateAISnapshot(element, userRequest);
+                    
+                    // Close the natural language panel after successful copy
+                    this.closePanels();
+                } catch (error) {
+                    console.error('Failed to generate AI snapshot with request:', error);
+                    copyBtn.innerHTML = '❌ Try Again';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.disabled = false;
+                    }, 2000);
+                }
+            }
+        }
+
+        async generateAISnapshot(element, userRequest = '') {
             try {
                 // Get element information
                 const elementTag = element.tagName.toLowerCase();
@@ -1669,8 +1928,16 @@
                 const changesNote = hasChanges ? 
                     '\n\n⚠️  **IMPORTANT**: This element has been modified using the live CSS editor. The CSS section shows both original and modified values.' : '';
 
+                // Add user request section if provided
+                const userRequestSection = userRequest ? `
+
+## 🎯 USER REQUEST
+The user wants you to: **${userRequest}**
+
+Please provide specific CSS code and instructions to achieve this request for the element analyzed below.` : '';
+
                 // Create AI-friendly snapshot
-                const snapshot = `🤖 AI Element Snapshot - ${elementIdentifier}${changesNote}
+                const snapshot = `🤖 AI Element Snapshot - ${elementIdentifier}${changesNote}${userRequestSection}
 
 ## ELEMENT CONTEXT
 This is an HTML element analysis from a web page inspection tool${hasChanges ? ' with live CSS editing capabilities' : ''}. Use this information to understand the element's structure, styling, and position in the DOM hierarchy.
@@ -2319,9 +2586,9 @@ ${this.generateCSSModificationGuidance(element)}`;
             if (!this.codePanel) return;
             
             // Update the panel title to show current element
-            const titleSpan = this.codePanel.querySelector('.open-web-inspector-panel-header span');
-            if (titleSpan) {
-                titleSpan.textContent = `📝 Code Inspector - ${this.getElementTitle(element)}`;
+            const subtitleSpan = this.codePanel.querySelector('.open-web-inspector-code-panel-subtitle');
+            if (subtitleSpan) {
+                subtitleSpan.textContent = this.getElementTitle(element);
             }
             
             // Update CSS tab content
@@ -2424,13 +2691,7 @@ ${this.generateCSSModificationGuidance(element)}`;
                     newScreenshotBtn.addEventListener('click', () => this.takeElementScreenshot(element));
                 }
 
-                // Re-setup AI Snapshot button for new element
-                const aiSnapshotBtn = this.popup.querySelector('.open-web-inspector-ai-snapshot-btn');
-                if (aiSnapshotBtn) {
-                    aiSnapshotBtn.replaceWith(aiSnapshotBtn.cloneNode(true));
-                    const newAiSnapshotBtn = this.popup.querySelector('.open-web-inspector-ai-snapshot-btn');
-                    newAiSnapshotBtn.addEventListener('click', () => this.generateAISnapshot(element));
-                }
+                // Note: AI Snapshot button has been moved to code panel
             }
         }
 
@@ -2470,10 +2731,11 @@ ${this.generateCSSModificationGuidance(element)}`;
                 const isSelected = i === this.currentSelectedIndex;
                 const className = isSelected ? 'tree-element selected' : 'tree-element';
                 
-                treeStructure += `${indent}<span class="${className}" data-element-index="${i}">${icon}${path[i]}</span>\n`;
+                treeStructure += `${indent}<span class="${className}" data-element-index="${i}">${icon}${path[i]}</span>`;
+                if (i < path.length - 1) treeStructure += '\n'; // Add newline only between elements, not at the end
             }
             
-            return treeStructure.trim();
+            return treeStructure;
         }
 
         generateElementPreview(element) {

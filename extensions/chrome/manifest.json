@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Open Web Inspector Auto-Injector",
+  "version": "1.0.0",
+  "description": "Automatically injects the Open Web Inspector into every webpage for seamless element inspection and CSS analysis",
+  
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "notifications"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Open Web Inspector Controls"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["open-web-inspector.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

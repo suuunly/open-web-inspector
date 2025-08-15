@@ -1684,12 +1684,12 @@ ${elementPath}
 ${htmlContent}
 \`\`\`
 
-## ${hasChanges ? 'CSS STYLES (WITH MODIFICATIONS)' : 'APPLIED CSS STYLES'}
+## ${hasChanges ? 'CSS STYLES (WITH MODIFICATIONS)' : 'EXPLICIT CSS RULES'}
 \`\`\`css
 ${cssStyles}
 \`\`\`
 
-## KEY COMPUTED STYLES
+## COMPUTED STYLES (FINAL VALUES)
 \`\`\`css
 ${computedStyles}
 \`\`\`
@@ -1698,7 +1698,13 @@ ${computedStyles}
 - Element Type: ${elementTag}
 - Identifier: ${elementIdentifier}
 - Use this information to understand layout, styling, or help debug CSS/HTML issues
-- The element path shows the hierarchical structure from the selected element up to the document root${hasChanges ? '\n- **CSS CHANGES**: Modified values are marked with comments showing original vs current values' : ''}`;
+- The element path shows the hierarchical structure from the selected element up to the document root
+- **COMPUTED STYLES contain the final values** the browser actually uses (often more useful than raw CSS)
+- Cross-origin stylesheets are blocked by browsers but computed styles show the final result${hasChanges ? '\n- **CSS CHANGES**: Modified values are marked with comments showing original vs current values' : ''}
+
+## CSS MODIFICATION GUIDANCE
+To modify this element's styles, use these selectors (in order of effectiveness):
+${this.generateCSSModificationGuidance(element)}`;
 
                 // Copy to clipboard
                 await navigator.clipboard.writeText(snapshot);
@@ -2137,7 +2143,7 @@ ${computedStyles}
                 styles.push('/* Unable to access some stylesheet rules due to CORS restrictions */');
             }
             
-            return styles.join('\n') || '/* No explicit CSS styles found */';
+            return styles.join('\n') || '/* Cross-origin stylesheets blocked - see computed styles below for actual values */';
         }
 
         getCSSStylesWithChangesText(element) {
@@ -2596,6 +2602,7 @@ ${computedStyles}
             console.log('🎯 CSS Analysis for:', targetElement.tagName + (targetElement.className ? '.' + targetElement.className.split(' ')[0] : ''));
             
             const matchedRules = [];
+            let blockedSheetCount = 0;
             
             // Try to get stylesheet rules (gracefully handle cross-origin blocking)
             let foundDirectRules = false;
@@ -2638,33 +2645,27 @@ ${computedStyles}
                             }
                         }
                     } catch (e) {
-                        console.log(`❌ Blocked stylesheet: ${sheet.href || 'inline'}`);
+                        blockedSheetCount++;
+                        console.log(`❌ Blocked stylesheet: ${sheet.href || 'inline'} - ${e.message}`);
                     }
                 }
             } catch (e) {
                 console.error('Error accessing stylesheets:', e);
             }
             
-            // Always include computed styles as primary source (especially for cross-origin blocked sites)
+            // Enhanced computed styles for production sites (especially when stylesheets are blocked)
             const computed = window.getComputedStyle(targetElement);
-            const computedProperties = [
-                { property: 'color', value: computed.color },
-                { property: 'background-color', value: computed.backgroundColor },
-                { property: 'font-family', value: computed.fontFamily },
-                { property: 'font-size', value: computed.fontSize },
-                { property: 'font-weight', value: computed.fontWeight },
-                { property: 'line-height', value: computed.lineHeight },
-                { property: 'margin', value: computed.margin },
-                { property: 'padding', value: computed.padding },
-                { property: 'border', value: computed.border },
-                { property: 'display', value: computed.display },
-                { property: 'position', value: computed.position },
-                { property: 'width', value: computed.width },
-                { property: 'height', value: computed.height }
-            ].filter(prop => prop.value && prop.value !== 'initial' && prop.value !== 'normal' && prop.value !== 'auto');
+            
+            // Generate meaningful selector for computed styles
+            const elementSelector = this.generateElementSelector(targetElement);
+            const computedSelector = foundDirectRules ? 
+                `${elementSelector} (computed)` : 
+                `${elementSelector} (computed - ${blockedSheetCount} blocked stylesheets)`;
+            
+            // Comprehensive list of meaningful computed properties
+            const computedProperties = this.extractMeaningfulComputedStyles(computed);
             
             if (computedProperties.length > 0) {
-                const computedSelector = `${targetElement.tagName.toLowerCase()}${targetElement.className ? '.' + targetElement.className.split(' ')[0] : ''} (computed)`;
                 matchedRules.push({
                     selector: computedSelector,
                     properties: computedProperties,
@@ -2673,16 +2674,188 @@ ${computedStyles}
                 });
             }
             
-            console.log(`🎯 Found ${matchedRules.length} total rules (${foundDirectRules ? 'with' : 'without'} direct stylesheet access)`);
+            // Add inline styles if present
+            const inlineStyles = this.getInlineStyles(targetElement);
+            if (inlineStyles.length > 0) {
+                matchedRules.push({
+                    selector: `${elementSelector} (inline)`,
+                    properties: inlineStyles,
+                    specificity: 1000,
+                    source: 'inline'
+                });
+            }
             
-            // Sort rules by specificity and source
+            console.log(`🎯 Found ${matchedRules.length} total rules (${foundDirectRules ? 'with' : 'without'} direct stylesheet access, ${blockedSheetCount} blocked)`);
+            
+            // Enhanced sorting for production sites
             return matchedRules.sort((a, b) => {
-                if (a.source === 'computed' && !foundDirectRules) return -1; // Computed first if no direct rules
-                if (b.source === 'computed' && !foundDirectRules) return 1;
-                if (a.source === 'computed') return 1; // Computed last if direct rules exist
-                if (b.source === 'computed') return -1;
+                // Inline styles always first
+                if (a.source === 'inline') return -1;
+                if (b.source === 'inline') return 1;
+                
+                // If no direct rules found, show computed first
+                if (!foundDirectRules) {
+                    if (a.source === 'computed') return -1;
+                    if (b.source === 'computed') return 1;
+                }
+                
+                // Otherwise, stylesheet rules first, then computed
+                if (a.source === 'stylesheet' && b.source === 'computed') return -1;
+                if (b.source === 'stylesheet' && a.source === 'computed') return 1;
+                
+                // Within same source, sort by specificity
                 return b.specificity - a.specificity;
             });
+        }
+
+        // Enhanced helper methods for production CSS detection
+        generateElementSelector(element) {
+            const tagName = element.tagName.toLowerCase();
+            const id = element.id ? `#${element.id}` : '';
+            
+            // Handle multiple classes properly
+            let className = '';
+            if (element.className && element.className.trim()) {
+                const classes = element.className.trim().split(/\s+/);
+                // Show first few meaningful classes (avoid utility class clutter)
+                const meaningfulClasses = classes.filter(cls => 
+                    !cls.match(/^(is-|has-|u-|js-|sr-only|visually-hidden)/) &&
+                    cls.length > 1
+                ).slice(0, 3);
+                
+                if (meaningfulClasses.length > 0) {
+                    className = '.' + meaningfulClasses.join('.');
+                }
+            }
+            
+            return `${tagName}${id}${className}`;
+        }
+
+        extractMeaningfulComputedStyles(computed) {
+            const properties = [];
+            
+            // Categorized meaningful properties for better organization
+            const essentialProps = [
+                'display', 'position', 'z-index', 'overflow', 'box-sizing',
+                'visibility', 'opacity', 'float', 'clear'
+            ];
+            
+            const layoutProps = [
+                'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
+                'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+                'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left'
+            ];
+            
+            const borderProps = [
+                'border', 'border-width', 'border-style', 'border-color',
+                'border-radius', 'outline'
+            ];
+            
+            const backgroundProps = [
+                'background', 'background-color', 'background-image', 'background-size',
+                'background-position', 'background-repeat'
+            ];
+            
+            const typographyProps = [
+                'color', 'font-family', 'font-size', 'font-weight', 'font-style',
+                'line-height', 'text-align', 'text-decoration', 'text-transform',
+                'letter-spacing', 'word-spacing'
+            ];
+            
+            const flexGridProps = [
+                'flex', 'flex-direction', 'flex-wrap', 'justify-content', 'align-items',
+                'align-content', 'grid', 'grid-template-columns', 'grid-template-rows',
+                'grid-gap'
+            ];
+            
+            // Combine all property categories
+            const allProps = [
+                ...essentialProps, ...layoutProps, ...borderProps,
+                ...backgroundProps, ...typographyProps, ...flexGridProps
+            ];
+            
+            allProps.forEach(prop => {
+                const value = computed.getPropertyValue(prop);
+                if (value && this.isMeaningfulValue(prop, value)) {
+                    properties.push({ property: prop, value });
+                }
+            });
+            
+            return properties;
+        }
+
+        isMeaningfulValue(property, value) {
+            // Filter out default/meaningless values
+            const skipValues = ['initial', 'normal', 'auto', 'none', '0px', '0px 0px', '0px 0px 0px 0px', 'rgba(0, 0, 0, 0)', 'transparent'];
+            
+            if (skipValues.includes(value)) return false;
+            
+            // Special cases for specific properties
+            if (property === 'font-weight' && value === '400') return false; // Default weight
+            if (property === 'line-height' && value === 'normal') return false;
+            if (property === 'z-index' && value === 'auto') return false;
+            if (property.includes('margin') && value === '0px') return false;
+            if (property.includes('padding') && value === '0px') return false;
+            
+            return true;
+        }
+
+        generateCSSModificationGuidance(element) {
+            const suggestions = [];
+            const tagName = element.tagName.toLowerCase();
+            const elementId = element.id;
+            const classes = element.className ? element.className.trim().split(/\s+/).filter(cls => 
+                cls && !cls.includes('open-web-inspector') && cls.length > 1
+            ) : [];
+            
+            // 1. Most specific - ID selector (highest specificity)
+            if (elementId) {
+                suggestions.push(`1. **#${elementId}** (highest specificity - overrides almost everything)`);
+            }
+            
+            // 2. Element + ID
+            if (elementId) {
+                suggestions.push(`2. **${tagName}#${elementId}** (very high specificity)`);
+            }
+            
+            // 3. Element + all classes
+            if (classes.length > 0) {
+                const allClasses = classes.slice(0, 3).join('.');
+                suggestions.push(`3. **${tagName}.${allClasses}** (high specificity - matches exact element)`);
+            }
+            
+            // 4. First meaningful class combinations
+            if (classes.length > 0) {
+                const mainClass = classes[0];
+                suggestions.push(`4. **${tagName}.${mainClass}** (medium specificity - for ${mainClass} styling)`);
+                
+                if (classes.length > 1) {
+                    suggestions.push(`5. **.${mainClass}.${classes[1]}** (class combination)`);
+                }
+                
+                suggestions.push(`6. **.${mainClass}** (targets all ${mainClass} elements)`);
+            }
+            
+            // 7. Element selector (lowest specificity)
+            suggestions.push(`${suggestions.length + 1}. **${tagName}** (lowest specificity - affects all ${tagName} elements)`);
+            
+            // Add practical examples
+            suggestions.push('');
+            suggestions.push('**EXAMPLE CSS RULES:**');
+            if (elementId) {
+                suggestions.push(`\`\`\`css\n#${elementId} {\n  color: blue;\n  font-size: 20px;\n}\n\`\`\``);
+            } else if (classes.length > 0) {
+                suggestions.push(`\`\`\`css\n.${classes[0]} {\n  color: blue;\n  font-size: 20px;\n}\n\`\`\``);
+            } else {
+                suggestions.push(`\`\`\`css\n${tagName} {\n  color: blue;\n  font-size: 20px;\n}\n\`\`\``);
+            }
+            
+            // Add inline style option
+            suggestions.push('');
+            suggestions.push('**INLINE STYLE OPTION (highest priority):**');
+            suggestions.push(`\`\`\`html\n<${tagName}${elementId ? ` id="${elementId}"` : ''}${classes.length ? ` class="${classes.join(' ')}"` : ''} style="color: blue; font-size: 20px;">\n\`\`\``);
+            
+            return suggestions.join('\n');
         }
 
         getInlineStyles(element) {

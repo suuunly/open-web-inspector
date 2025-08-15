@@ -39,16 +39,16 @@ jobs:
         echo "🔍 Checking dist/ files exist..."
         ls -la dist/
         echo "✅ Development build:"
-        ls -lh dist/web-element-selector.js
+        ls -lh dist/open-web-inspector.js
         echo "✅ Production build:"
-        ls -lh dist/web-element-selector.min.js
+        ls -lh dist/open-web-inspector.min.js
         echo "✅ Source map:"
-        ls -lh dist/web-element-selector.min.js.map
+        ls -lh dist/open-web-inspector.min.js.map
         
     - name: 🧪 Smoke Test Build
       run: |
         echo "🔥 Testing that minified build is valid JavaScript..."
-        node -c dist/web-element-selector.min.js
+        node -c dist/open-web-inspector.min.js
         echo "✅ Minified build syntax is valid!"
         
     - name: 📤 Upload Build Artifacts
@@ -84,8 +84,8 @@ jobs:
       
     - name: 📊 Record Current Sizes
       run: |
-        echo "CURRENT_DEV_SIZE=$(stat -c%s dist/web-element-selector.js)" >> $GITHUB_ENV
-        echo "CURRENT_PROD_SIZE=$(stat -c%s dist/web-element-selector.min.js)" >> $GITHUB_ENV
+        echo "CURRENT_DEV_SIZE=$(stat -c%s dist/open-web-inspector.js)" >> $GITHUB_ENV
+        echo "CURRENT_PROD_SIZE=$(stat -c%s dist/open-web-inspector.min.js)" >> $GITHUB_ENV
         
     - name: 📝 Comment Size Impact
       uses: actions/github-script@v7
@@ -107,8 +107,8 @@ jobs:
           
           | File | Size | Compressed |
           |------|------|------------|
-          | \`web-element-selector.js\` | ${formatBytes(devSize)} | Development |
-          | \`web-element-selector.min.js\` | ${formatBytes(prodSize)} | **Production** |
+          | \`open-web-inspector.js\` | ${formatBytes(devSize)} | Development |
+          | \`open-web-inspector.min.js\` | ${formatBytes(prodSize)} | **Production** |
           
           **Compression ratio:** ${((1 - prodSize/devSize) * 100).toFixed(1)}% smaller 🎯
           

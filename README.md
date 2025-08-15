@@ -23,7 +23,7 @@ tools, and any website that needs intelligent element inspection capabilities.
 - 🎛️ **External API Control**: Revolutionary AI-controllable interface with
   global JavaScript API
 - ⌨️ **Keyboard Shortcuts**: Ctrl+Shift+E to toggle, Escape to disable
-- 🔗 **URL Parameter Support**: Auto-enable via ?web-selector=true
+- 🔗 **URL Parameter Support**: Auto-enable via ?open-web-inspector=true
 - 📡 **DOM Events**: Custom events for advanced integrations
 - 🚀 **Zero Dependencies**: Pure vanilla JavaScript, dynamically loads helpers
   when needed
@@ -139,10 +139,10 @@ OpenWebInspector.enable(); // Perfect for AI assistants
 
 ```javascript
 // For complex integrations
-document.dispatchEvent(new CustomEvent("web-selector-enable"));
-document.dispatchEvent(new CustomEvent("web-selector-disable"));
+document.dispatchEvent(new CustomEvent("open-web-inspector-enable"));
+document.dispatchEvent(new CustomEvent("open-web-inspector-disable"));
 document.dispatchEvent(
-  new CustomEvent("web-selector-select", {
+  new CustomEvent("open-web-inspector-select", {
     detail: { selector: ".my-element" },
   }),
 );
@@ -151,7 +151,7 @@ document.dispatchEvent(
 #### 🔗 **URL Parameters**
 
 ```
-https://yoursite.com?web-selector=true           // Auto-enable
+https://yoursite.com?open-web-inspector=true           // Auto-enable
 https://yoursite.com?inspect=.my-button         // Auto-select element
 ```
 
@@ -262,16 +262,16 @@ OpenWebInspector.selectElement(".btn"); // Auto-select element
 OpenWebInspector.getVersion(); // Get version info
 
 // 📡 DOM Events (Advanced Integrations)
-document.dispatchEvent(new CustomEvent("web-selector-enable"));
-document.dispatchEvent(new CustomEvent("web-selector-disable"));
+document.dispatchEvent(new CustomEvent("open-web-inspector-enable"));
+document.dispatchEvent(new CustomEvent("open-web-inspector-disable"));
 document.dispatchEvent(
-  new CustomEvent("web-selector-select", {
+  new CustomEvent("open-web-inspector-select", {
     detail: { selector: ".my-element" },
   }),
 );
 
 // 🔗 URL Parameters (Auto-Enable)
-// ?web-selector=true          - Auto-enable on page load
+// ?open-web-inspector=true          - Auto-enable on page load
 // ?inspect=.my-button        - Auto-select specific element
 
 // ⌨️ Keyboard Events (Built-in)
@@ -298,24 +298,25 @@ The library provides helpful console messages:
   • Escape = Disable analyze mode
 
 📡 DOM events listening:
-  • web-selector-enable
-  • web-selector-disable
-  • web-selector-toggle
-  • web-selector-select (with detail.selector)
+  • open-web-inspector-enable
+  • open-web-inspector-disable
+  • open-web-inspector-toggle
+  • open-web-inspector-select (with detail.selector)
 
 🔗 URL parameters supported:
-  • ?web-selector=true (auto-enable)
+  • ?open-web-inspector=true (auto-enable)
   • ?inspect=.selector (auto-select element)
 ```
 
 ## CSS Classes Used
 
-The library uses CSS classes with the `web-selector-` prefix to avoid conflicts:
+The library uses CSS classes with the `open-web-inspector-` prefix to avoid
+conflicts:
 
-- `.web-selector-highlight` - Applied to hovered elements
-- `.web-selector-popup` - Main popup container
-- `.web-selector-overlay` - Background overlay
-- `.web-selector-analyze-cursor` - Applied to body when in analyze mode
+- `.open-web-inspector-highlight` - Applied to hovered elements
+- `.open-web-inspector-popup` - Main popup container
+- `.open-web-inspector-overlay` - Background overlay
+- `.open-web-inspector-analyze-cursor` - Applied to body when in analyze mode
 
 ## Customization
 
@@ -323,11 +324,11 @@ You can override the default styles by adding your own CSS after including the
 library:
 
 ```css
-.web-selector-highlight {
+.open-web-inspector-highlight {
   outline-color: blue !important; /* Change highlight color */
 }
 
-.web-selector-popup {
+.open-web-inspector-popup {
   max-width: 600px !important; /* Adjust popup size */
 }
 ```

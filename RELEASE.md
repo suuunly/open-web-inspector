@@ -1,6 +1,6 @@
 # Release Process
 
-This document describes how to create a new release of the Web Element Selector
+This document describes how to create a new release of the Open Web Inspector
 library.
 
 ## Automated Release Process
@@ -58,9 +58,9 @@ git push origin v1.0.1
 After a successful release, the library will be available on:
 
 - **jsDelivr:**
-  `https://cdn.jsdelivr.net/npm/embedded-web-selector@VERSION/dist/web-element-selector.min.js`
+  `https://cdn.jsdelivr.net/npm/open-web-inspector@VERSION/dist/open-web-inspector.min.js`
 - **unpkg:**
-  `https://unpkg.com/embedded-web-selector@VERSION/dist/web-element-selector.min.js`
+  `https://unpkg.com/open-web-inspector@VERSION/dist/open-web-inspector.min.js`
 
 Replace `VERSION` with the actual version number (e.g., `1.0.1`).
 
@@ -75,9 +75,9 @@ Replace `VERSION` with the actual version number (e.g., `1.0.1`).
 
 ```
 dist/
-├── web-element-selector.js        # Unminified version
-├── web-element-selector.min.js    # Minified version (production)
-└── web-element-selector.min.js.map # Source map for debugging
+├── open-web-inspector.js        # Unminified version
+├── open-web-inspector.min.js    # Minified version (production)
+└── open-web-inspector.min.js.map # Source map for debugging
 ```
 
 ## Troubleshooting

@@ -47,7 +47,7 @@ jobs:
       run: |
         echo "🔍 Validating build outputs..."
         npm run size
-        node -c dist/web-element-selector.min.js
+        node -c dist/open-web-inspector.min.js
         echo "✅ Build validation complete!"
         
     - name: 📈 Bump Version (Manual Trigger)
@@ -79,10 +79,10 @@ jobs:
       id: release_notes
       run: |
         VERSION=${{ steps.extract_version.outputs.VERSION }}
-        BUILD_SIZE=$(ls -lah dist/web-element-selector.min.js | awk '{print $5}')
+        BUILD_SIZE=$(ls -lah dist/open-web-inspector.min.js | awk '{print $5}')
         
         cat > release_notes.md << EOF
-        ## 🚀 Web Element Selector v${VERSION}
+        ## 🚀 Open Web Inspector v${VERSION}
         
         ### 📦 What's New
         - Enhanced element inspection capabilities
@@ -100,17 +100,17 @@ jobs:
         
         **Latest version (always up-to-date):**
         \`\`\`html
-        <script src="https://unpkg.com/embedded-web-selector@latest/dist/web-element-selector.min.js"></script>
+        <script src="https://unpkg.com/open-web-inspector@latest/dist/open-web-inspector.min.js"></script>
         \`\`\`
         
         **Specific version (recommended for production):**
         \`\`\`html
-        <script src="https://unpkg.com/embedded-web-selector@${VERSION}/dist/web-element-selector.min.js"></script>
+        <script src="https://unpkg.com/open-web-inspector@${VERSION}/dist/open-web-inspector.min.js"></script>
         \`\`\`
         
         **Alternative CDN:**
         \`\`\`html
-        <script src="https://cdn.jsdelivr.net/npm/embedded-web-selector@${VERSION}/dist/web-element-selector.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/open-web-inspector@${VERSION}/dist/open-web-inspector.min.js"></script>
         \`\`\`
         
         ### 🎯 Quick Start
@@ -127,8 +127,8 @@ jobs:
         
         ### 🔧 Advanced Usage
         - Keyboard shortcut: \`Ctrl+Shift+E\`
-        - URL parameter: \`?web-selector=true\`
-        - DOM events: \`web-selector-enable\`, \`web-selector-disable\`
+        - URL parameter: \`?open-web-inspector=true\`
+        - DOM events: \`open-web-inspector-enable\`, \`open-web-inspector-disable\`
         
         ---
         
@@ -174,8 +174,8 @@ jobs:
       run: |
         echo "🎉 RELEASE COMPLETE! 🎉"
         echo "📌 Version: ${{ steps.extract_version.outputs.VERSION }}"
-        echo "📦 NPM: https://www.npmjs.com/package/embedded-web-selector"
-        echo "🔗 CDN: https://unpkg.com/embedded-web-selector@${{ steps.extract_version.outputs.VERSION }}/"
-        echo "🌍 jsDelivr: https://cdn.jsdelivr.net/npm/embedded-web-selector@${{ steps.extract_version.outputs.VERSION }}/"
+        echo "📦 NPM: https://www.npmjs.com/package/open-web-inspector"
+        echo "🔗 CDN: https://unpkg.com/open-web-inspector@${{ steps.extract_version.outputs.VERSION }}/"
+        echo "🌍 jsDelivr: https://cdn.jsdelivr.net/npm/open-web-inspector@${{ steps.extract_version.outputs.VERSION }}/"
         echo ""
         echo "🚀 Your package is now live on CDN! 🚀"

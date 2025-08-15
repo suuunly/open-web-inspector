@@ -35,9 +35,9 @@ jobs:
         ls -la dist/
         echo ""
         echo "📊 File sizes:"
-        echo "Original: $(wc -c < web-element-selector.js) bytes"
-        echo "Minified: $(wc -c < dist/web-element-selector.min.js) bytes"
-        echo "Compression: $(echo "scale=1; (1 - $(wc -c < dist/web-element-selector.min.js) / $(wc -c < web-element-selector.js)) * 100" | bc)%"
+        echo "Original: $(wc -c < open-web-inspector.js) bytes"
+        echo "Minified: $(wc -c < dist/open-web-inspector.min.js) bytes"
+        echo "Compression: $(echo "scale=1; (1 - $(wc -c < dist/open-web-inspector.min.js) / $(wc -c < open-web-inspector.js)) * 100" | bc)%"
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

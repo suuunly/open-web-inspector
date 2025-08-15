@@ -8,13 +8,13 @@ deployment.
 ```bash
 git init
 git add .
-git commit -m "Initial commit: Web Element Selector library with automated build pipeline"
+git commit -m "Initial commit: Open Web Inspector library with automated build pipeline"
 ```
 
 ## 2. Create GitHub Repository
 
 1. Go to [GitHub](https://github.com) and create a new repository
-2. Name it: `embedded-web-selector`
+2. Name it: `open-web-inspector`
 3. Set it to public (required for CDN access)
 4. Don't initialize with README (we already have one)
 
@@ -22,7 +22,7 @@ git commit -m "Initial commit: Web Element Selector library with automated build
 
 ```bash
 # Replace 'yourusername' with your actual GitHub username
-git remote add origin https://github.com/yourusername/embedded-web-selector.git
+git remote add origin https://github.com/yourusername/open-web-inspector.git
 git branch -M main
 git push -u origin main
 ```
@@ -58,11 +58,11 @@ Update the following fields in `package.json`:
   "author": "Your Name <your.email@example.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/embedded-web-selector.git"
+    "url": "https://github.com/yourusername/open-web-inspector.git"
   },
-  "homepage": "https://github.com/yourusername/embedded-web-selector#readme",
+  "homepage": "https://github.com/yourusername/open-web-inspector#readme",
   "bugs": {
-    "url": "https://github.com/yourusername/embedded-web-selector/issues"
+    "url": "https://github.com/yourusername/open-web-inspector/issues"
   }
 }
 ```
@@ -84,10 +84,10 @@ After pushing the tag, check:
 
 1. **GitHub Actions**: Go to **Actions** tab to see the workflow running
 2. **GitHub Releases**: Check the **Releases** section for your new release
-3. **NPM Package**: Visit `https://www.npmjs.com/package/embedded-web-selector`
+3. **NPM Package**: Visit `https://www.npmjs.com/package/open-web-inspector`
 4. **CDN Links**: Test the CDN URLs:
-   - `https://cdn.jsdelivr.net/npm/embedded-web-selector@1.0.0/dist/web-element-selector.min.js`
-   - `https://unpkg.com/embedded-web-selector@1.0.0/dist/web-element-selector.min.js`
+   - `https://cdn.jsdelivr.net/npm/open-web-inspector@1.0.0/dist/open-web-inspector.min.js`
+   - `https://unpkg.com/open-web-inspector@1.0.0/dist/open-web-inspector.min.js`
 
 ## 8. Future Releases
 

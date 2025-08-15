@@ -1,0 +1,55 @@
+{
+  "name": "embedded-web-selector",
+  "version": "1.0.1",
+  "description": "A lightweight, embeddable JavaScript library for DOM element inspection with hover highlighting and CSS/HTML analysis",
+  "main": "dist/web-element-selector.min.js",
+  "module": "src/index.js",
+  "scripts": {
+    "dev": "python3 -m http.server 8002",
+    "test": "echo \"Navigate to http://localhost:8002/examples/ to test the functionality\" && npm run dev",
+    "build": "npm run clean && npm run build:dev && npm run build:prod",
+    "build:dev": "cp src/index.js dist/web-element-selector.js",
+    "build:prod": "terser src/index.js -o dist/web-element-selector.min.js --compress --mangle --source-map --comments false",
+    "clean": "rm -rf dist/*.js dist/*.map",
+    "prepare": "npm run build",
+    "version:patch": "npm version patch && npm run build",
+    "version:minor": "npm version minor && npm run build",
+    "version:major": "npm version major && npm run build",
+    "release": "npm run build && git add dist/ && git commit -m \"🚀 Release build files\" && git push",
+    "size": "echo \"📦 Build sizes:\" && ls -lah dist/*.js | awk '{print $5, $9}'"
+  },
+  "keywords": [
+    "dom",
+    "element",
+    "inspector",
+    "css",
+    "html",
+    "developer-tools",
+    "embeddable",
+    "vanilla-js",
+    "no-dependencies"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/embedded-web-selector.git"
+  },
+  "homepage": "https://github.com/yourusername/embedded-web-selector#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/embedded-web-selector/issues"
+  },
+  "files": [
+    "src/",
+    "dist/",
+    "examples/",
+    "README.md",
+    "LICENSE"
+  ],
+  "unpkg": "dist/web-element-selector.min.js",
+  "jsdelivr": "dist/web-element-selector.min.js",
+  "cdn": "dist/web-element-selector.min.js",
+  "devDependencies": {
+    "terser": "^5.36.0"
+  }
+}

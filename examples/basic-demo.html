@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Element Selector - Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        .demo-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .card h3 {
+            color: #2d3748;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .analyze-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+        
+        .sample-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sample-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .nested-content {
+            border: 2px dashed #cbd5e0;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .nested-content .inner {
+            background: #fef5e7;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="analyze-toggle">
+        <button id="analyzeToggle" class="btn btn-primary">Enable Analyze Mode</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Web Element Selector</h1>
+            <p>Hover over any element and click to inspect its HTML structure and CSS properties</p>
+        </div>
+        
+        <div class="demo-content">
+            <div class="card">
+                <h3>Interactive Elements</h3>
+                <div class="button-group">
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                </div>
+                <p>Try hovering over these buttons and other elements on the page. When analyze mode is enabled, you'll see a red border highlighting the element you can inspect.</p>
+            </div>
+            
+            <div class="card">
+                <h3>Sample Content</h3>
+                <ul class="sample-list">
+                    <li>List item with custom styling</li>
+                    <li>Another item to test selection</li>
+                    <li>Each element shows different CSS properties</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="nested-content">
+            <h3>Nested Structure Example</h3>
+            <p>This section contains nested elements to demonstrate the hierarchy display.</p>
+            <div class="inner">
+                <p>This is a nested paragraph with different styling.</p>
+                <a href="#" class="btn btn-primary">Nested Link Button</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Click the "Enable Analyze Mode" button above to start inspecting elements!</p>
+        </div>
+    </div>
+
+    <!-- Include our embeddable library -->
+    <script src="../src/index.js"></script>
+    <script>
+        // Initialize the element selector
+        document.addEventListener('DOMContentLoaded', function() {
+            // The library will automatically set up event listeners
+            console.log('Web Element Selector loaded and ready!');
+        });
+    </script>
+</body>
+</html>

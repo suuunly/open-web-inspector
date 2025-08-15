@@ -1,0 +1,122 @@
+name: 🚀 CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    name: 🔨 Test & Build
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    
+    steps:
+    - name: 📂 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: 📦 Install Dependencies
+      run: npm ci
+      
+    - name: 🏗️ Build Project
+      run: npm run build
+      
+    - name: 📊 Check Build Size
+      run: npm run size
+      
+    - name: 📋 Validate Build Output
+      run: |
+        echo "🔍 Checking dist/ files exist..."
+        ls -la dist/
+        echo "✅ Development build:"
+        ls -lh dist/web-element-selector.js
+        echo "✅ Production build:"
+        ls -lh dist/web-element-selector.min.js
+        echo "✅ Source map:"
+        ls -lh dist/web-element-selector.min.js.map
+        
+    - name: 🧪 Smoke Test Build
+      run: |
+        echo "🔥 Testing that minified build is valid JavaScript..."
+        node -c dist/web-element-selector.min.js
+        echo "✅ Minified build syntax is valid!"
+        
+    - name: 📤 Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      if: matrix.node-version == 20  # Only upload once
+      with:
+        name: build-artifacts
+        path: |
+          dist/
+          package.json
+        retention-days: 30
+
+  size-impact:
+    name: 📏 Size Impact Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: 📂 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        
+    - name: 📦 Install Dependencies
+      run: npm ci
+      
+    - name: 🏗️ Build Current Branch
+      run: npm run build
+      
+    - name: 📊 Record Current Sizes
+      run: |
+        echo "CURRENT_DEV_SIZE=$(stat -c%s dist/web-element-selector.js)" >> $GITHUB_ENV
+        echo "CURRENT_PROD_SIZE=$(stat -c%s dist/web-element-selector.min.js)" >> $GITHUB_ENV
+        
+    - name: 📝 Comment Size Impact
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const devSize = parseInt(process.env.CURRENT_DEV_SIZE);
+          const prodSize = parseInt(process.env.CURRENT_PROD_SIZE);
+          
+          const formatBytes = (bytes) => {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+          };
+          
+          const comment = `## 📦 Build Size Report
+          
+          | File | Size | Compressed |
+          |------|------|------------|
+          | \`web-element-selector.js\` | ${formatBytes(devSize)} | Development |
+          | \`web-element-selector.min.js\` | ${formatBytes(prodSize)} | **Production** |
+          
+          **Compression ratio:** ${((1 - prodSize/devSize) * 100).toFixed(1)}% smaller 🎯
+          
+          _Built with Node.js 20 on Ubuntu_ ✅`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

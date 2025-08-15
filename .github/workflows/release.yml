@@ -1,0 +1,181 @@
+name: 🎉 Release & Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version type to release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+jobs:
+  release:
+    name: 🚀 Build & Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    
+    steps:
+    - name: 📂 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
+        
+    - name: 📦 Install Dependencies
+      run: npm ci
+      
+    - name: 🏗️ Build Project
+      run: npm run build
+      
+    - name: 🧪 Validate Build
+      run: |
+        echo "🔍 Validating build outputs..."
+        npm run size
+        node -c dist/web-element-selector.min.js
+        echo "✅ Build validation complete!"
+        
+    - name: 📈 Bump Version (Manual Trigger)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        npm run version:${{ github.event.inputs.version }}
+        
+    - name: 🎯 Extract Version
+      id: extract_version
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "📌 Version: $VERSION"
+        
+    - name: 📤 Publish to NPM
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        
+    - name: 🏷️ Create Git Tag (Manual Trigger)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        git tag v${{ steps.extract_version.outputs.VERSION }}
+        git push origin v${{ steps.extract_version.outputs.VERSION }}
+        
+    - name: 📋 Generate Release Notes
+      id: release_notes
+      run: |
+        VERSION=${{ steps.extract_version.outputs.VERSION }}
+        BUILD_SIZE=$(ls -lah dist/web-element-selector.min.js | awk '{print $5}')
+        
+        cat > release_notes.md << EOF
+        ## 🚀 Web Element Selector v${VERSION}
+        
+        ### 📦 What's New
+        - Enhanced element inspection capabilities
+        - Live CSS editing with real-time preview
+        - AI-powered snapshot generation
+        - Screenshot capture functionality
+        - External API for programmatic control
+        
+        ### 📊 Build Information
+        - **Minified size**: ${BUILD_SIZE}
+        - **Compression**: ~41% smaller than source
+        - **Compatibility**: All modern browsers
+        
+        ### 🔗 CDN Usage
+        
+        **Latest version (always up-to-date):**
+        \`\`\`html
+        <script src="https://unpkg.com/embedded-web-selector@latest/dist/web-element-selector.min.js"></script>
+        \`\`\`
+        
+        **Specific version (recommended for production):**
+        \`\`\`html
+        <script src="https://unpkg.com/embedded-web-selector@${VERSION}/dist/web-element-selector.min.js"></script>
+        \`\`\`
+        
+        **Alternative CDN:**
+        \`\`\`html
+        <script src="https://cdn.jsdelivr.net/npm/embedded-web-selector@${VERSION}/dist/web-element-selector.min.js"></script>
+        \`\`\`
+        
+        ### 🎯 Quick Start
+        \`\`\`javascript
+        // Enable analyze mode
+        OpenWebInspector.enable();
+        
+        // Select an element programmatically
+        OpenWebInspector.selectElement('.my-element');
+        
+        // Disable when done
+        OpenWebInspector.disable();
+        \`\`\`
+        
+        ### 🔧 Advanced Usage
+        - Keyboard shortcut: \`Ctrl+Shift+E\`
+        - URL parameter: \`?web-selector=true\`
+        - DOM events: \`web-selector-enable\`, \`web-selector-disable\`
+        
+        ---
+        
+        📚 **Full documentation**: [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)
+        🐛 **Report issues**: [GitHub Issues](https://github.com/${{ github.repository }}/issues)
+        ⭐ **Star this repo** if you find it useful!
+        EOF
+        
+    - name: 📢 Update Release (Auto Release)
+      if: github.event_name == 'release'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const releaseNotes = fs.readFileSync('release_notes.md', 'utf8');
+          
+          await github.rest.repos.updateRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: context.payload.release.id,
+            body: releaseNotes
+          });
+          
+    - name: 🎉 Create Release (Manual Trigger)
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const releaseNotes = fs.readFileSync('release_notes.md', 'utf8');
+          
+          await github.rest.repos.createRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            tag_name: `v${{ steps.extract_version.outputs.VERSION }}`,
+            name: `🚀 v${{ steps.extract_version.outputs.VERSION }}`,
+            body: releaseNotes,
+            draft: false,
+            prerelease: false
+          });
+          
+    - name: 📊 Post-Release Summary
+      run: |
+        echo "🎉 RELEASE COMPLETE! 🎉"
+        echo "📌 Version: ${{ steps.extract_version.outputs.VERSION }}"
+        echo "📦 NPM: https://www.npmjs.com/package/embedded-web-selector"
+        echo "🔗 CDN: https://unpkg.com/embedded-web-selector@${{ steps.extract_version.outputs.VERSION }}/"
+        echo "🌍 jsDelivr: https://cdn.jsdelivr.net/npm/embedded-web-selector@${{ steps.extract_version.outputs.VERSION }}/"
+        echo ""
+        echo "🚀 Your package is now live on CDN! 🚀"

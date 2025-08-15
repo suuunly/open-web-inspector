@@ -1,15 +1,15 @@
 {
-  "name": "embedded-web-selector",
+  "name": "open-web-inspector",
   "version": "1.0.1",
-  "description": "A lightweight, embeddable JavaScript library for DOM element inspection with hover highlighting and CSS/HTML analysis",
-  "main": "dist/web-element-selector.min.js",
+  "description": "The open source web element inspector - AI-controllable DOM inspection with live CSS editing, hover highlighting, and developer tools integration",
+  "main": "dist/open-web-inspector.min.js",
   "module": "src/index.js",
   "scripts": {
     "dev": "python3 -m http.server 8002",
     "test": "echo \"Navigate to http://localhost:8002/examples/ to test the functionality\" && npm run dev",
     "build": "npm run clean && npm run build:dev && npm run build:prod",
-    "build:dev": "cp src/index.js dist/web-element-selector.js",
-    "build:prod": "terser src/index.js -o dist/web-element-selector.min.js --compress --mangle --source-map --comments false",
+    "build:dev": "cp src/index.js dist/open-web-inspector.js",
+    "build:prod": "terser src/index.js -o dist/open-web-inspector.min.js --compress passes=3,drop_console=true,drop_debugger=true,pure_funcs=['console.log','console.debug','console.info'] --mangle --source-map --comments false",
     "clean": "rm -rf dist/*.js dist/*.map",
     "prepare": "npm run build",
     "version:patch": "npm version patch && npm run build",
@@ -19,25 +19,39 @@
     "size": "echo \"📦 Build sizes:\" && ls -lah dist/*.js | awk '{print $5, $9}'"
   },
   "keywords": [
-    "dom",
-    "element",
-    "inspector",
+    "open-source",
+    "web-inspector",
+    "dom-inspector",
+    "element-inspector",
     "css",
     "html",
     "developer-tools",
-    "embeddable",
+    "devtools",
+    "live-css",
+    "css-editor",
     "vanilla-js",
-    "no-dependencies"
+    "no-dependencies",
+    "ai-controllable",
+    "ai-inspector",
+    "debugging",
+    "frontend",
+    "browser",
+    "element-selection",
+    "hover-highlighting",
+    "screenshot",
+    "embeddable",
+    "cdn",
+    "javascript"
   ],
   "author": "Your Name",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/embedded-web-selector.git"
+    "url": "https://github.com/yourusername/open-web-inspector.git"
   },
-  "homepage": "https://github.com/yourusername/embedded-web-selector#readme",
+  "homepage": "https://github.com/yourusername/open-web-inspector#readme",
   "bugs": {
-    "url": "https://github.com/yourusername/embedded-web-selector/issues"
+    "url": "https://github.com/yourusername/open-web-inspector/issues"
   },
   "files": [
     "src/",
@@ -46,9 +60,17 @@
     "README.md",
     "LICENSE"
   ],
-  "unpkg": "dist/web-element-selector.min.js",
-  "jsdelivr": "dist/web-element-selector.min.js",
-  "cdn": "dist/web-element-selector.min.js",
+  "unpkg": "dist/open-web-inspector.min.js",
+  "jsdelivr": "dist/open-web-inspector.min.js",
+  "cdn": "dist/open-web-inspector.min.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "terser": "^5.36.0"
   }

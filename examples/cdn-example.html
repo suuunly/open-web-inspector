@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDN Integration Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            z-index: 1000;
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .navbar {
+            background: #343a40;
+            color: white;
+            padding: 15px;
+            margin: -20px -20px 20px -20px;
+        }
+        
+        .navbar h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .sidebar {
+            float: left;
+            width: 250px;
+            background: #e9ecef;
+            padding: 15px;
+            margin-right: 20px;
+            border-radius: 5px;
+        }
+        
+        .main-content {
+            margin-left: 290px;
+        }
+        
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        ul li {
+            margin: 8px 0;
+            padding: 5px;
+            background: #f8f9fa;
+            border-left: 3px solid #007bff;
+        }
+        
+        .footer {
+            background: #6c757d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin: 20px -20px -20px -20px;
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Web Element Selector - CDN Example</h1>
+        <p>This page demonstrates how easy it is to integrate the Web Element Selector library via CDN</p>
+    </div>
+
+    <!-- Toggle button for analyze mode -->
+    <button id="analyzeToggle" class="btn toggle-btn">Enable Analyze Mode</button>
+
+    <div class="clearfix">
+        <div class="sidebar">
+            <h3>Navigation</h3>
+            <ul>
+                <li>Home</li>
+                <li>About</li>
+                <li>Services</li>
+                <li>Contact</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <h4>Pro Tip!</h4>
+                <p>Try hovering over different elements when analyze mode is enabled. Each element will show a red border indicating it can be inspected.</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>Welcome to the CDN Integration Demo</h2>
+                <p>This page shows how simple it is to add element inspection capabilities to any website using just a single script tag.</p>
+                
+                <div class="highlight-box">
+                    <strong>Integration is as simple as:</strong>
+                    <pre style="background: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0;">
+&lt;script src="../src/index.js"&gt;&lt;/script&gt;
+&lt;button id="analyzeToggle"&gt;Enable Analyze Mode&lt;/button&gt;</pre>
+                </div>
+                
+                <button class="btn">Sample Button 1</button>
+                <button class="btn">Sample Button 2</button>
+                <button class="btn">Sample Button 3</button>
+            </div>
+
+            <div class="card">
+                <h3>Features Demonstrated</h3>
+                <ul>
+                    <li>Hover highlighting with red borders</li>
+                    <li>Click-to-inspect any element</li>
+                    <li>View HTML structure and hierarchy</li>
+                    <li>Analyze CSS styles (applied and computed)</li>
+                    <li>Element path display</li>
+                    <li>Responsive popup interface</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Try These Elements</h3>
+                <p>Enable analyze mode and try clicking on:</p>
+                <ul>
+                    <li>This paragraph text</li>
+                    <li>The navigation sidebar</li>
+                    <li>Any of the buttons</li>
+                    <li>The header navbar</li>
+                    <li>Individual list items</li>
+                    <li>The cards themselves</li>
+                </ul>
+                
+                <div style="border: 2px dashed #007bff; padding: 20px; margin: 15px 0;">
+                    <h4>Nested Content Example</h4>
+                    <p>This content is nested within a dashed border container. Try inspecting it to see the element hierarchy!</p>
+                    <span style="background: #ffc107; padding: 5px; border-radius: 3px;">Inline styled element</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Web Element Selector Demo. Click "Enable Analyze Mode" to start inspecting elements!</p>
+    </div>
+
+    <!-- Include the Web Element Selector library -->
+    <!-- In a real CDN setup, this would be something like: -->
+    <!-- <script src="https://unpkg.com/open-web-inspector@1.0.0/open-web-inspector.js"></script> -->
+    <script src="../dist/open-web-inspector.min.js"></script>
+    
+    <script>
+        // The library automatically initializes and sets up the toggle button
+        // No additional JavaScript needed!
+        
+        console.log('Web Element Selector loaded and ready!');
+        console.log('Click the "Enable Analyze Mode" button to start inspecting elements.');
+    </script>
+</body>
+</html>

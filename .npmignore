@@ -1,0 +1,54 @@
+# Development files
+.github/
+.vscode/
+.idea/
+
+# Source control
+.git/
+.gitignore
+
+# Build tools
+*.config.js
+*.config.mjs
+*.config.ts
+
+# Development dependencies
+node_modules/
+
+# Logs and debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+
+# Coverage
+coverage/
+*.lcov
+
+# Environment files
+.env*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.cache/
+
+# Keep these for npm package
+# src/
+# dist/
+# examples/
+# README.md
+# LICENSE
+# package.json

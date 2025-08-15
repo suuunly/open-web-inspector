@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDN Build Test - Web Element Selector</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f1aeb5; }
+        .info { background: #cce7ff; color: #004085; border: 1px solid #99d6ff; }
+        
+        .test-area {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .test-area:hover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .api-test {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        code {
+            background: #f1f3f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CDN Build Test</h1>
+        
+        <div id="status" class="status info">
+            Testing bundled open-web-inspector.min.js...
+        </div>
+        
+        <div class="api-test">
+            <h3>📋 API Test Results:</h3>
+            <div id="api-results">Running tests...</div>
+        </div>
+        
+        <div class="test-area">
+            <h3>🎯 Test Area</h3>
+            <p>Hover over elements to see highlighting!</p>
+            <button class="btn">Sample Button 1</button>
+            <button class="btn">Sample Button 2</button>
+            <p><strong>Instructions:</strong> Use <code>Ctrl+Shift+E</code> to toggle analyze mode, or run API commands in console!</p>
+        </div>
+        
+        <div class="api-test">
+            <h3>🧪 Try These API Commands:</h3>
+            <code>OpenWebInspector.enable()</code><br>
+            <code>OpenWebInspector.disable()</code><br>
+            <code>OpenWebInspector.toggle()</code><br>
+            <code>OpenWebInspector.getVersion()</code>
+        </div>
+    </div>
+
+    <!-- Load the BUNDLED minified version -->
+    <script src="../dist/open-web-inspector.min.js"></script>
+    
+    <script>
+        // Test the bundled library
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusEl = document.getElementById('status');
+            const resultsEl = document.getElementById('api-results');
+            
+            let results = [];
+            
+            try {
+                // Test 1: Library loaded
+                if (typeof OpenWebInspector !== 'undefined') {
+                    results.push('✅ Library loaded successfully');
+                } else {
+                    results.push('❌ Library not found');
+                    throw new Error('OpenWebInspector not found');
+                }
+                
+                // Test 2: Version check
+                try {
+                    const version = OpenWebInspector.getVersion();
+                    results.push(`✅ Version: ${version}`);
+                } catch (e) {
+                    results.push(`❌ Version check failed: ${e.message}`);
+                }
+                
+                // Test 3: API methods exist
+                const methods = ['enable', 'disable', 'toggle', 'isActive'];
+                methods.forEach(method => {
+                    if (typeof OpenWebInspector[method] === 'function') {
+                        results.push(`✅ ${method}() method available`);
+                    } else {
+                        results.push(`❌ ${method}() method missing`);
+                    }
+                });
+                
+                // Test 4: Enable/disable test
+                try {
+                    const wasActive = OpenWebInspector.isActive();
+                    OpenWebInspector.enable();
+                    const isActiveAfterEnable = OpenWebInspector.isActive();
+                    OpenWebInspector.disable();
+                    const isActiveAfterDisable = OpenWebInspector.isActive();
+                    
+                    if (isActiveAfterEnable && !isActiveAfterDisable) {
+                        results.push('✅ Enable/disable functionality works');
+                    } else {
+                        results.push('❌ Enable/disable functionality failed');
+                    }
+                } catch (e) {
+                    results.push(`❌ Enable/disable test failed: ${e.message}`);
+                }
+                
+                statusEl.className = 'status success';
+                statusEl.textContent = '🎉 All tests passed! The bundled library is working perfectly!';
+                
+            } catch (error) {
+                results.push(`❌ Critical error: ${error.message}`);
+                statusEl.className = 'status error';
+                statusEl.textContent = '💥 Build test failed! Check console for details.';
+            }
+            
+            resultsEl.innerHTML = results.join('<br>');
+        });
+    </script>
+</body>
+</html>

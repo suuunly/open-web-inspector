@@ -1,6 +1,6 @@
 {
   "name": "open-web-inspector",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The open source web element inspector - AI-controllable DOM inspection with live CSS editing, hover highlighting, and developer tools integration",
   "main": "dist/open-web-inspector.min.js",
   "module": "src/index.js",

@@ -6,32 +6,51 @@ library.
 ## Changelog
 
 ### Version 1.0.4 (2024-08-15)
+
 🎯 **AI-Actionable CSS Enhancement**
 
 **New Features:**
-- ✨ **AI-Actionable CSS Modification Guidance**: AI snapshots now include specific selector recommendations and code examples
-- 🎨 **Enhanced Production CSS Detection**: Better handling of cross-origin stylesheets and computed styles
-- 📊 **Smart Class Filtering**: Intelligent handling of multiple CSS classes with meaningful selector generation
-- 🧠 **CSS Specificity Guidance**: Clear recommendations on which selectors to use for modifications
-- 📝 **Ready-to-Use Code Examples**: Includes CSS rules and HTML inline style examples
+
+- ✨ **AI-Actionable CSS Modification Guidance**: AI snapshots now include
+  specific selector recommendations and code examples
+- 🎨 **Enhanced Production CSS Detection**: Better handling of cross-origin
+  stylesheets and computed styles
+- 📊 **Smart Class Filtering**: Intelligent handling of multiple CSS classes
+  with meaningful selector generation
+- 🧠 **CSS Specificity Guidance**: Clear recommendations on which selectors to
+  use for modifications
+- 📝 **Ready-to-Use Code Examples**: Includes CSS rules and HTML inline style
+  examples
 
 **Improvements:**
-- 🔧 **Better Cross-Origin Messaging**: Clear indication when stylesheets are blocked by CORS
-- 📈 **Enhanced Computed Styles**: More comprehensive property extraction with meaningful value filtering
-- 🎯 **Improved Element Selectors**: Smarter class combination logic that avoids utility class clutter
-- 🤖 **AI-Friendly Output**: Structured guidance that enables AI systems to take actionable CSS modifications
+
+- 🔧 **Better Cross-Origin Messaging**: Clear indication when stylesheets are
+  blocked by CORS
+- 📈 **Enhanced Computed Styles**: More comprehensive property extraction with
+  meaningful value filtering
+- 🎯 **Improved Element Selectors**: Smarter class combination logic that avoids
+  utility class clutter
+- 🤖 **AI-Friendly Output**: Structured guidance that enables AI systems to take
+  actionable CSS modifications
 
 **Technical Details:**
-- Enhanced `generateCSSModificationGuidance()` method for intelligent selector suggestions
-- Improved computed styles extraction with categorized properties (layout, typography, background, etc.)
+
+- Enhanced `generateCSSModificationGuidance()` method for intelligent selector
+  suggestions
+- Improved computed styles extraction with categorized properties (layout,
+  typography, background, etc.)
 - Better element selector generation with multiple class handling
 - Production-grade cross-origin stylesheet detection and fallback
 
-**For AI Developers:**
-This release makes Open Web Inspector snapshots significantly more useful for AI workflows. AIs can now understand not just what styles are applied, but exactly how to modify them with proper selectors and specificity.
+**For AI Developers:** This release makes Open Web Inspector snapshots
+significantly more useful for AI workflows. AIs can now understand not just what
+styles are applied, but exactly how to modify them with proper selectors and
+specificity.
 
 ### Version 1.0.3 and Earlier
-Previous releases focused on core inspector functionality, live CSS editing, and basic cross-origin support.
+
+Previous releases focused on core inspector functionality, live CSS editing, and
+basic cross-origin support.
 
 ## Automated Release Process
 

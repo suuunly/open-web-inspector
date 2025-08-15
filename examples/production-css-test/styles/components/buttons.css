@@ -1,0 +1,50 @@
+/* Button & Status Components - Production-style component CSS */
+
+.status {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.status:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.status.success {
+    background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+    color: #22543d;
+    border-color: #68d391;
+}
+
+.status.testing {
+    background: linear-gradient(135deg, #feebc8 0%, #fbd38d 100%);
+    color: #744210;
+    border-color: #f6ad55;
+}
+
+.status.warning {
+    background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+    color: #742a2a;
+    border-color: #f56565;
+}
+
+.status.info {
+    background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%);
+    color: #2a4365;
+    border-color: #63b3ed;
+}
+
+/* Complex button states for testing CSS specificity */
+.status:not(.disabled):hover.testing {
+    background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+    color: white;
+}

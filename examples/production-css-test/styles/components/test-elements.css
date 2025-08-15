@@ -1,0 +1,52 @@
+/* Test Elements Component - Simulating production component architecture */
+
+.test-element {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 24px;
+    margin: 24px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #4a5568;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.test-element:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.test-element strong {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.test-element ul {
+    margin: 16px 0;
+    padding-left: 24px;
+}
+
+.test-element li {
+    margin: 8px 0;
+    color: #718096;
+}
+
+.icon-element {
+    color: #667eea;
+    font-size: 24px;
+    margin-right: 12px;
+    vertical-align: middle;
+}
+
+.complex-selector .test-element:nth-child(even) {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+/* Multi-class selector for testing specificity */
+.test-element.interactive.highlighted {
+    border-color: #38b2ac;
+    background: #e6fffa;
+}

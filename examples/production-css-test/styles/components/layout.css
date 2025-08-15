@@ -1,0 +1,76 @@
+/* Layout & Base Styles - Global layout component */
+
+/* CSS Reset & Base */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 0;
+    padding: 40px;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.section {
+    margin-bottom: 48px;
+}
+
+.section-title {
+    font-family: 'Lato', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 24px 0;
+    text-align: center;
+}
+
+#results {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f0f9ff;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+#results h3 {
+    margin: 0 0 12px 0;
+    color: #1e40af;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#results ul {
+    margin: 0;
+    color: #1e40af;
+    padding-left: 20px;
+}
+
+#results li {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+    
+    .hero {
+        padding: 24px;
+    }
+    
+    .hero__title {
+        font-size: 36px;
+    }
+}

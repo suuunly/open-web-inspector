@@ -15,6 +15,7 @@
             this.originalCursor = null;
             this.cssChanges = new Map(); // Track CSS changes: element -> {property: {original, current}}
             this.currentElement = null; // Track current element being inspected
+            this.actualSelectedElement = null; // Track actual page element (not inspector UI)
             
             this.init();
         }
@@ -1110,6 +1111,12 @@
         createPopup(element) {
             this.closePopup();
             this.currentElement = element;
+            
+            // Store the actual page element (not inspector UI) for CSS analysis
+            if (!element.className.includes('open-web-inspector')) {
+                this.actualSelectedElement = element;
+                console.log('🎯 Stored actual page element:', element.tagName + (element.className ? '.' + element.className.split(' ')[0] : ''));
+            }
             
             // Create the new FAB-style popup
             this.createFabPopup(element);
@@ -2583,69 +2590,96 @@ ${computedStyles}
         }
 
         getMatchedCSSRules(element) {
+            // Use the actual page element, not inspector UI
+            const targetElement = this.actualSelectedElement || element;
+            
+            console.log('🎯 CSS Analysis for:', targetElement.tagName + (targetElement.className ? '.' + targetElement.className.split(' ')[0] : ''));
+            
             const matchedRules = [];
             
-            // Add inline styles as first "rule"
-            const inlineProperties = this.getInlineStyles(element);
-            if (inlineProperties.length > 0) {
-                matchedRules.push({
-                    selector: 'inline styles',
-                    properties: inlineProperties,
-                    specificity: 1000, // Inline styles have highest specificity
-                    source: 'inline'
-                });
-            }
-            
-            // Get stylesheet rules
+            // Try to get stylesheet rules (gracefully handle cross-origin blocking)
+            let foundDirectRules = false;
             try {
-                const sheets = Array.from(document.styleSheets);
-                
-                sheets.forEach(sheet => {
+                for (let i = 0; i < document.styleSheets.length; i++) {
+                    const sheet = document.styleSheets[i];
+                    
                     try {
-                        const rules = Array.from(sheet.cssRules || sheet.rules || []);
+                        const rules = sheet.cssRules || sheet.rules;
+                        if (!rules) continue;
                         
-                        rules.forEach(rule => {
-                            if (rule.type === CSSRule.STYLE_RULE && rule.selectorText) {
-                                // Check if the rule matches this element
-                                if (this.elementMatchesSelector(element, rule.selectorText)) {
-                                    const properties = this.extractPropertiesFromRule(rule);
-                                    if (properties.length > 0) {
+                        for (let j = 0; j < rules.length; j++) {
+                            const rule = rules[j];
+                            
+                            if (rule.type === 1 && rule.selectorText) {
+                                try {
+                                    if (targetElement.matches(rule.selectorText)) {
+                                        console.log(`✅ Found matching rule: ${rule.selectorText}`);
+                                        
+                                        const properties = [];
+                                        for (let k = 0; k < rule.style.length; k++) {
+                                            const propName = rule.style[k];
+                                            properties.push({
+                                                property: propName,
+                                                value: rule.style.getPropertyValue(propName)
+                                            });
+                                        }
+                                        
                                         matchedRules.push({
                                             selector: rule.selectorText,
                                             properties: properties,
-                                            specificity: this.calculateSpecificity(rule.selectorText),
+                                            specificity: this.calculateSpecificity ? this.calculateSpecificity(rule.selectorText) : 100,
                                             source: 'stylesheet'
                                         });
+                                        foundDirectRules = true;
                                     }
+                                } catch (e) {
+                                    continue;
                                 }
                             }
-                        });
+                        }
                     } catch (e) {
-                        // Skip stylesheets we can't access due to CORS
-                        console.debug('Cannot access stylesheet:', e.message);
+                        console.log(`❌ Blocked stylesheet: ${sheet.href || 'inline'}`);
                     }
-                });
+                }
             } catch (e) {
-                console.error('Error parsing CSS rules:', e);
+                console.error('Error accessing stylesheets:', e);
             }
             
-            // Add inherited styles from parent elements
-            const inheritedRules = this.getInheritedStyles(element, matchedRules);
-            matchedRules.push(...inheritedRules);
+            // Always include computed styles as primary source (especially for cross-origin blocked sites)
+            const computed = window.getComputedStyle(targetElement);
+            const computedProperties = [
+                { property: 'color', value: computed.color },
+                { property: 'background-color', value: computed.backgroundColor },
+                { property: 'font-family', value: computed.fontFamily },
+                { property: 'font-size', value: computed.fontSize },
+                { property: 'font-weight', value: computed.fontWeight },
+                { property: 'line-height', value: computed.lineHeight },
+                { property: 'margin', value: computed.margin },
+                { property: 'padding', value: computed.padding },
+                { property: 'border', value: computed.border },
+                { property: 'display', value: computed.display },
+                { property: 'position', value: computed.position },
+                { property: 'width', value: computed.width },
+                { property: 'height', value: computed.height }
+            ].filter(prop => prop.value && prop.value !== 'initial' && prop.value !== 'normal' && prop.value !== 'auto');
             
-            // Add computed styles for properties not found in explicit rules
-            const computedRule = this.getComputedStylesRule(element, matchedRules);
-            if (computedRule.properties.length > 0) {
-                matchedRules.push(computedRule);
+            if (computedProperties.length > 0) {
+                const computedSelector = `${targetElement.tagName.toLowerCase()}${targetElement.className ? '.' + targetElement.className.split(' ')[0] : ''} (computed)`;
+                matchedRules.push({
+                    selector: computedSelector,
+                    properties: computedProperties,
+                    specificity: foundDirectRules ? 1 : 1000, // Higher priority if no direct rules found
+                    source: 'computed'
+                });
             }
             
-            // Sort by specificity and source (inline -> direct -> inherited -> computed)
+            console.log(`🎯 Found ${matchedRules.length} total rules (${foundDirectRules ? 'with' : 'without'} direct stylesheet access)`);
+            
+            // Sort rules by specificity and source
             return matchedRules.sort((a, b) => {
-                if (a.source === 'inline') return -1;
-                if (b.source === 'inline') return 1;
-                if (a.source === 'inherited' && b.source !== 'inherited') return 1;
-                if (b.source === 'inherited' && a.source !== 'inherited') return -1;
-                if (a.source === 'computed') return 1;
+                if (a.source === 'computed' && !foundDirectRules) return -1; // Computed first if no direct rules
+                if (b.source === 'computed' && !foundDirectRules) return 1;
+                if (a.source === 'computed') return 1; // Computed last if direct rules exist
                 if (b.source === 'computed') return -1;
                 return b.specificity - a.specificity;
             });

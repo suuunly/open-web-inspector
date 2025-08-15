@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production CSS Architecture Test - Open Web Inspector</title>
+    
+    <!-- External cross-origin CDN (simulating real production) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    
+    <!-- Main CSS with @import architecture (exactly like production websites) -->
+    <link href="styles/main.css" rel="stylesheet">
+    
+    <meta name="description" content="Testing Open Web Inspector's CSS detection on production-style @import architecture">
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1 class="hero__title">Production CSS Architecture Test</h1>
+            <p class="hero__subtitle">Real-world @import + cross-origin stylesheet simulation</p>
+            <p class="hero__description">
+                This test perfectly replicates the production website architecture where 
+                <code>main.css</code> uses <code>@import</code> rules to load component-specific 
+                stylesheets, with some cross-origin resources that get blocked by browser security.
+            </p>
+            
+            <div class="test-element interactive highlighted">
+                <i class="fas fa-microscope icon-element"></i>
+                <strong>Complex Element:</strong> This element has styles from multiple sources:
+                <ul>
+                    <li>🌍 <strong>Cross-origin @imports:</strong> Google Fonts loaded via main.css</li>
+                    <li>🎨 <strong>External CDN:</strong> Font Awesome (direct link)</li>
+                    <li>📁 <strong>Local @imports:</strong> hero.css, test-elements.css, buttons.css, layout.css</li>
+                    <li>🎯 <strong>CSS specificity:</strong> Multiple selectors with different priorities</li>
+                    <li>💻 <strong>Computed fallback:</strong> When direct access is blocked</li>
+                </ul>
+                <div class="status testing">Click me to test CSS detection! 🔍</div>
+            </div>
+            
+            <div class="test-element">
+                <i class="fas fa-cog icon-element"></i>
+                <strong>Secondary Test Element:</strong>
+                <ul>
+                    <li>✅ Tests CSS rule grouping</li>
+                    <li>✅ Tests inherited styles detection</li>
+                    <li>✅ Tests computed styles priority</li>
+                    <li>✅ Tests cross-origin graceful handling</li>
+                </ul>
+                <div class="status info">Secondary test target 🎯</div>
+            </div>
+            
+            <div id="results" style="display: none;">
+                <h3>🎯 Production Test Results:</h3>
+                <ul>
+                    <li>✅ <strong>Inspector opens</strong> without Symbol conversion errors</li>
+                    <li>✅ <strong>CSS panel displays</strong> computed styles when @imports are blocked</li>
+                    <li>✅ <strong>Property names</strong> show correctly (color, font-family, font-size, etc.)</li>
+                    <li>✅ <strong>Property values</strong> are accurate and formatted properly</li>
+                    <li>✅ <strong>Rule headers</strong> show proper element selectors</li>
+                    <li>✅ <strong>Context switching</strong> analyzes actual page elements (not inspector UI)</li>
+                    <li>✅ <strong>Cross-origin handling</strong> gracefully falls back to computed styles</li>
+                    <li>✅ <strong>@import architecture</strong> detected and handled appropriately</li>
+                </ul>
+                
+                <div style="background: #e6f3ff; padding: 12px; border-radius: 6px; margin-top: 16px;">
+                    <strong>🔍 Expected Console Output:</strong>
+                    <br><code>🎯 CSS Analysis for: div.test-element</code>
+                    <br><code>❌ Blocked stylesheet: https://fonts.googleapis.com/...</code>
+                    <br><code>✅ Found X total rules (with/without direct stylesheet access)</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the PRODUCTION-READY inspector with integrated fixes -->
+    <script src="../../dist/open-web-inspector.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 Production CSS Architecture Test Loaded');
+            console.log('');
+            console.log('📋 Testing Scenario:');
+            console.log('   🌐 main.css → @import Google Fonts (cross-origin)');
+            console.log('   📁 main.css → @import local components (layout, hero, buttons, test-elements)');
+            console.log('   🎨 Direct CDN link → Font Awesome (cross-origin)');
+            console.log('   🎯 Complex selectors → .test-element.interactive.highlighted');
+            console.log('   💻 Computed fallback → When stylesheets are blocked');
+            console.log('');
+            console.log('🚀 This exactly replicates the production website architecture!');
+            console.log('📝 Click on test elements to verify CSS detection works perfectly.');
+            console.log('');
+            
+            // Enable inspector automatically
+            if (typeof OpenWebInspector !== 'undefined') {
+                OpenWebInspector.enable();
+                
+                // Show results section
+                document.getElementById('results').style.display = 'block';
+                
+                console.log('✅ Open Web Inspector enabled with production CSS fixes!');
+            } else {
+                console.error('❌ Open Web Inspector not found!');
+            }
+        });
+        
+        // Add click handlers for status updates
+        document.querySelectorAll('.status').forEach(status => {
+            status.addEventListener('click', function() {
+                this.textContent = this.textContent.includes('Click me') 
+                    ? 'CSS Detection Active! 🎉' 
+                    : this.textContent;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -47,11 +47,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/open-web-inspector.git"
+    "url": "https://github.com/suuunly/open-web-inspector.git"
   },
-  "homepage": "https://github.com/yourusername/open-web-inspector#readme",
+  "homepage": "https://github.com/suuunly/open-web-inspector#readme",
   "bugs": {
-    "url": "https://github.com/yourusername/open-web-inspector/issues"
+    "url": "https://github.com/suuunly/open-web-inspector/issues"
   },
   "files": [
     "src/",

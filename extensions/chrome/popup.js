@@ -1,205 +1,77 @@
-// Open Web Inspector Extension Popup Script
+// Simple Open Web Inspector Popup
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const elements = {
-        loading: document.getElementById('loading'),
-        content: document.getElementById('content'),
-        status: document.getElementById('status'),
-        statusText: document.getElementById('status-text'),
-        versionBadge: document.getElementById('version-badge'),
-        toggleBtn: document.getElementById('toggleBtn'),
-        enableBtn: document.getElementById('enableBtn'),
-        disableBtn: document.getElementById('disableBtn')
-    };
-    
+    const toggleBtn = document.getElementById('toggleBtn');
     let currentTab = null;
+    let isInspecting = false;
     
-    /**
-     * Get the current active tab
-     */
+    // Get current tab
     async function getCurrentTab() {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         return tab;
     }
     
-    /**
-     * Send message to content script
-     */
-    async function sendMessage(action, data = {}) {
-        if (!currentTab) {
-            throw new Error('No active tab available');
-        }
+    // Send message to content script
+    async function sendMessage(action) {
+        if (!currentTab) return;
         
-        return new Promise((resolve, reject) => {
-            chrome.tabs.sendMessage(currentTab.id, { action, ...data }, (response) => {
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message));
-                } else {
-                    resolve(response);
-                }
+        return new Promise((resolve) => {
+            chrome.tabs.sendMessage(currentTab.id, { action }, (response) => {
+                resolve(response || { success: false });
             });
         });
     }
     
-    /**
-     * Update the UI status
-     */
-    function updateStatus(loaded, active, version = null) {
-        // Update status container classes
-        elements.status.classList.remove('loaded', 'not-loaded', 'active');
-        
-        if (!loaded) {
-            elements.status.classList.add('not-loaded');
-            elements.statusText.textContent = 'Inspector not loaded';
-            elements.versionBadge.textContent = '';
-        } else if (active) {
-            elements.status.classList.add('active');
-            elements.statusText.textContent = 'Inspector ACTIVE';
-            elements.versionBadge.textContent = version ? `v${version}` : '';
+    // Update button appearance
+    function updateButton(inspecting) {
+        isInspecting = inspecting;
+        if (inspecting) {
+            toggleBtn.textContent = 'Stop Inspecting';
+            toggleBtn.className = 'toggle-btn stop';
         } else {
-            elements.status.classList.add('loaded');
-            elements.statusText.textContent = 'Inspector ready';
-            elements.versionBadge.textContent = version ? `v${version}` : '';
-        }
-        
-        // Update button states
-        elements.toggleBtn.disabled = !loaded;
-        elements.enableBtn.disabled = !loaded || active;
-        elements.disableBtn.disabled = !loaded || !active;
-        
-        // Update button text
-        if (loaded) {
-            elements.toggleBtn.textContent = active ? 'Disable Inspector' : 'Enable Inspector';
-        } else {
-            elements.toggleBtn.textContent = 'Inspector Not Loaded';
+            toggleBtn.textContent = 'Inspect';
+            toggleBtn.className = 'toggle-btn inspect';
         }
     }
     
-    /**
-     * Check the current status
-     */
-    async function checkStatus() {
+    // Handle toggle button click
+    toggleBtn.addEventListener('click', async () => {
+        toggleBtn.disabled = true;
+        
         try {
-            const response = await sendMessage('status');
-            if (response && response.success) {
-                updateStatus(response.loaded, response.active, response.version);
-            } else {
-                updateStatus(false, false);
-            }
-        } catch (error) {
-            console.error('Failed to check status:', error);
-            updateStatus(false, false);
-        }
-    }
-    
-    /**
-     * Show notification
-     */
-    function showNotification(message, type = 'info') {
-        // Create a temporary notification (you could enhance this)
-        const originalText = elements.statusText.textContent;
-        elements.statusText.textContent = message;
-        
-        setTimeout(() => {
-            checkStatus(); // Refresh status after action
-        }, 1000);
-    }
-    
-    /**
-     * Handle button clicks
-     */
-    elements.toggleBtn.addEventListener('click', async () => {
-        try {
-            elements.toggleBtn.disabled = true;
             const response = await sendMessage('toggle');
-            
             if (response && response.success) {
-                showNotification(response.message, 'success');
-            } else {
-                showNotification('Failed to toggle inspector', 'error');
+                updateButton(!isInspecting);
             }
         } catch (error) {
             console.error('Toggle failed:', error);
-            showNotification('Extension communication error', 'error');
-        } finally {
-            elements.toggleBtn.disabled = false;
         }
-    });
-    
-    elements.enableBtn.addEventListener('click', async () => {
-        try {
-            elements.enableBtn.disabled = true;
-            const response = await sendMessage('enable');
-            
-            if (response && response.success) {
-                showNotification('Inspector enabled!', 'success');
-            } else {
-                showNotification('Failed to enable inspector', 'error');
-            }
-        } catch (error) {
-            console.error('Enable failed:', error);
-            showNotification('Extension communication error', 'error');
-        } finally {
-            elements.enableBtn.disabled = false;
-        }
-    });
-    
-    elements.disableBtn.addEventListener('click', async () => {
-        try {
-            elements.disableBtn.disabled = true;
-            const response = await sendMessage('disable');
-            
-            if (response && response.success) {
-                showNotification('Inspector disabled', 'success');
-            } else {
-                showNotification('Failed to disable inspector', 'error');
-            }
-        } catch (error) {
-            console.error('Disable failed:', error);
-            showNotification('Extension communication error', 'error');
-        } finally {
-            elements.disableBtn.disabled = false;
-        }
+        
+        toggleBtn.disabled = false;
     });
     
     // Initialize
     try {
         currentTab = await getCurrentTab();
         
-        if (!currentTab) {
-            throw new Error('No active tab found');
-        }
-        
-        // Check if this is a valid web page
-        if (!currentTab.url || currentTab.url.startsWith('chrome://') || currentTab.url.startsWith('chrome-extension://')) {
-            elements.loading.style.display = 'none';
-            elements.content.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: #6c757d;">
-                    <p>⚠️ Cannot inject inspector</p>
-                    <p style="font-size: 12px;">Extension pages and system pages are not supported</p>
-                </div>
-            `;
-            elements.content.style.display = 'block';
+        // Check if valid page
+        if (!currentTab || !currentTab.url || 
+            currentTab.url.startsWith('chrome://') || 
+            currentTab.url.startsWith('chrome-extension://')) {
+            toggleBtn.textContent = 'Not Available';
+            toggleBtn.disabled = true;
             return;
         }
         
-        // Hide loading and show content
-        elements.loading.style.display = 'none';
-        elements.content.style.display = 'block';
-        
         // Check initial status
-        await checkStatus();
-        
-        // Set up periodic status refresh
-        const statusInterval = setInterval(checkStatus, 2000);
-        
-        // Clean up when popup closes
-        window.addEventListener('beforeunload', () => {
-            clearInterval(statusInterval);
-        });
+        const response = await sendMessage('status');
+        if (response && response.success) {
+            updateButton(response.active);
+        }
         
     } catch (error) {
-        console.error('Popup initialization failed:', error);
-        elements.loading.textContent = 'Failed to connect to page';
+        console.error('Popup init failed:', error);
+        toggleBtn.textContent = 'Error';
+        toggleBtn.disabled = true;
     }
 });

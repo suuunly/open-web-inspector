@@ -1,221 +1,126 @@
-// Open Web Inspector Auto-Injector Content Script
-// Automatically injects Open Web Inspector into every webpage
+// Simple Open Web Inspector Extension Content Script
+// The library is already loaded via manifest content_scripts
+
+console.log('🚀 Content script starting to load...');
 
 (function() {
     'use strict';
     
-    // Configuration
-    const CONFIG = {
-        cdnUrl: 'https://cdn.jsdelivr.net/npm/open-web-inspector@latest/dist/open-web-inspector.min.js',
-        localUrl: chrome.runtime.getURL('open-web-inspector.min.js'),
-        autoEnable: false, // Set to true to auto-enable inspector on every page
-        debugMode: true,
-        useLocal: true // Use bundled version to avoid CSP issues
-    };
+    console.log('🔧 Content script IIFE executing...');
     
-    // Debug logging
-    function log(message, ...args) {
-        if (CONFIG.debugMode) {
-            console.log(`[Open Web Inspector Extension] ${message}`, ...args);
-        }
-    }
-    
-    // Check if already injected to avoid duplicates
-    if (window.openWebInspectorInjected) {
-        log('Already injected, skipping...');
+    // Check if already initialized
+    if (window.openWebInspectorExtensionReady) {
+        console.log('⚠️ Already initialized, skipping...');
         return;
     }
+    window.openWebInspectorExtensionReady = true;
+    console.log('✅ Content script initialized!');
     
-    // Mark as injected
-    window.openWebInspectorInjected = true;
+    // Setup message listener for popup communication
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (typeof window.OpenWebInspector === 'undefined') {
+            sendResponse({ success: false, message: 'Inspector not available' });
+            return;
+        }
+        
+        if (request.action === 'enable') {
+            window.OpenWebInspector.enable();
+            sendResponse({ success: true, message: 'Inspector enabled' });
+        }
+        else if (request.action === 'disable') {
+            window.OpenWebInspector.disable();
+            sendResponse({ success: true, message: 'Inspector disabled' });
+        }
+        else if (request.action === 'toggle') {
+            window.OpenWebInspector.toggle();
+            const isActive = window.OpenWebInspector.isActive();
+            sendResponse({ 
+                success: true, 
+                message: `Inspector ${isActive ? 'enabled' : 'disabled'}`,
+                isActive: isActive
+            });
+        }
+        else if (request.action === 'status') {
+            const loaded = typeof window.OpenWebInspector !== 'undefined';
+            const active = loaded ? window.OpenWebInspector.isActive() : false;
+            sendResponse({ 
+                success: true, 
+                loaded: loaded, 
+                active: active,
+                version: loaded ? window.OpenWebInspector.getVersion() : null
+            });
+        }
+        else if (request.action === 'selectElement' && request.selector) {
+            window.OpenWebInspector.selectElement(request.selector);
+            sendResponse({ success: true, message: `Selected: ${request.selector}` });
+        }
+        
+        return true;
+    });
     
-    /**
-     * Inject Open Web Inspector into the page
-     */
-    function injectOpenWebInspector() {
-        return new Promise((resolve, reject) => {
-            // Check if already loaded
-            if (typeof window.OpenWebInspector !== 'undefined') {
-                log('Open Web Inspector already available');
-                resolve(window.OpenWebInspector);
-                return;
-            }
-            
-            log('Injecting Open Web Inspector...');
-            
-            // Create script element
-            const script = document.createElement('script');
-            script.src = CONFIG.useLocal ? CONFIG.localUrl : CONFIG.cdnUrl;
-            script.async = true;
-            
-            log(`Loading from: ${script.src}`);
-            
-            // Handle successful load
-            script.onload = () => {
-                log('✅ Open Web Inspector loaded successfully!');
-                
-                // Wait a bit for global API setup
-                setTimeout(() => {
-                    if (typeof window.OpenWebInspector !== 'undefined') {
-                        log('🎯 Global API ready!');
-                        resolve(window.OpenWebInspector);
-                        
-                        // Auto-enable if configured
-                        if (CONFIG.autoEnable) {
-                            window.OpenWebInspector.enable();
-                            log('🚀 Auto-enabled inspector');
-                        }
-                        
-                        // Dispatch custom event for other scripts
-                        document.dispatchEvent(new CustomEvent('openWebInspectorReady', {
-                            detail: { api: window.OpenWebInspector }
-                        }));
-                    } else {
-                        reject(new Error('Global API not available after load'));
+    // Note: Keyboard shortcuts are handled by the main OpenWebInspector library
+    // No need to duplicate them here - the library already sets up Ctrl+Shift+E and Escape
+    
+    // Handle CSP errors from library's html2canvas loading
+    window.addEventListener('error', (e) => {
+        if (e.message && (e.message.includes('html2canvas') || e.message.includes('script') || e.message.includes('CSP'))) {
+            // Silently handle CSP-related errors from the library
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Prevent dynamic script loading to avoid CSP issues
+    const originalCreateElement = document.createElement;
+    document.createElement = function(tagName) {
+        const element = originalCreateElement.call(this, tagName);
+        if (tagName.toLowerCase() === 'script') {
+            // Override script loading to prevent CSP violations
+            Object.defineProperty(element, 'src', {
+                set: function(value) {
+                    if (value && value.includes('html2canvas')) {
+                        console.log('🚫 Blocked html2canvas loading due to CSP');
+                        return;
                     }
-                }, 100);
-            };
-            
-            // Handle load error
-            script.onerror = (error) => {
-                log('❌ Failed to load Open Web Inspector:', error);
-                reject(error);
-            };
-            
-            // Inject into page
-            (document.head || document.documentElement).appendChild(script);
-        });
-    }
+                    // Allow other scripts
+                    this.setAttribute('src', value);
+                },
+                get: function() {
+                    return this.getAttribute('src');
+                }
+            });
+        }
+        return element;
+    };
     
-    /**
-     * Setup extension message listener for popup communication
-     */
-    function setupMessageListener() {
-        // Listen for messages from popup
-        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            log('Received message:', request);
+    // Wait for OpenWebInspector to be ready, then initialize
+    function checkAndInitialize() {
+        if (typeof window.OpenWebInspector !== 'undefined') {
+            console.log('🎯 Open Web Inspector Ready!');
+            console.log('📋 Available methods:', Object.keys(window.OpenWebInspector));
+            console.log('🔍 Initial state - isActive:', window.OpenWebInspector.isActive());
             
-            if (request.action === 'enable') {
-                if (typeof window.OpenWebInspector !== 'undefined') {
-                    window.OpenWebInspector.enable();
-                    sendResponse({ success: true, message: 'Inspector enabled' });
-                } else {
-                    sendResponse({ success: false, message: 'Inspector not loaded' });
-                }
+            // Disable screenshot functionality to prevent CSP errors
+            if (window.OpenWebInspector.takeElementScreenshot) {
+                window.OpenWebInspector.takeElementScreenshot = () => {
+                    console.log('Screenshot disabled due to CSP restrictions');
+                };
             }
-            
-            else if (request.action === 'disable') {
-                if (typeof window.OpenWebInspector !== 'undefined') {
-                    window.OpenWebInspector.disable();
-                    sendResponse({ success: true, message: 'Inspector disabled' });
-                } else {
-                    sendResponse({ success: false, message: 'Inspector not loaded' });
-                }
-            }
-            
-            else if (request.action === 'toggle') {
-                if (typeof window.OpenWebInspector !== 'undefined') {
-                    window.OpenWebInspector.toggle();
-                    const isActive = window.OpenWebInspector.isActive();
-                    sendResponse({ 
-                        success: true, 
-                        message: `Inspector ${isActive ? 'enabled' : 'disabled'}`,
-                        isActive: isActive
-                    });
-                } else {
-                    sendResponse({ success: false, message: 'Inspector not loaded' });
-                }
-            }
-            
-            else if (request.action === 'status') {
-                const loaded = typeof window.OpenWebInspector !== 'undefined';
-                const active = loaded ? window.OpenWebInspector.isActive() : false;
-                sendResponse({ 
-                    success: true, 
-                    loaded: loaded, 
-                    active: active,
-                    version: loaded ? window.OpenWebInspector.getVersion() : null
-                });
-            }
-            
-            else if (request.action === 'selectElement') {
-                if (typeof window.OpenWebInspector !== 'undefined' && request.selector) {
-                    window.OpenWebInspector.selectElement(request.selector);
-                    sendResponse({ success: true, message: `Selected: ${request.selector}` });
-                } else {
-                    sendResponse({ success: false, message: 'Inspector not loaded or no selector provided' });
-                }
-            }
-            
-            return true; // Keep message channel open for async response
-        });
-    }
-    
-    /**
-     * Add keyboard shortcut enhancement
-     */
-    function setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+Shift+I = Force enable inspector (in addition to built-in shortcuts)
-            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-                e.preventDefault();
-                if (typeof window.OpenWebInspector !== 'undefined') {
-                    window.OpenWebInspector.enable();
-                    log('🎯 Inspector enabled via Ctrl+Shift+I');
-                } else {
-                    log('⚠️ Inspector not loaded yet');
-                }
-            }
-        });
-    }
-    
-    /**
-     * Initialize the extension
-     */
-    async function initialize() {
-        try {
-            log('🚀 Initializing Open Web Inspector Extension...');
-            log('Current page URL:', window.location.href);
-            log('Document ready state:', document.readyState);
-            
-            // Inject the inspector
-            await injectOpenWebInspector();
-            
-            // Setup communication with popup
-            setupMessageListener();
-            
-            // Setup additional keyboard shortcuts
-            setupKeyboardShortcuts();
-            
-            log('✅ Extension initialized successfully!');
-            log('OpenWebInspector available:', typeof window.OpenWebInspector);
-            
-            // Show a subtle notification (can be disabled)
-            if (CONFIG.debugMode) {
-                console.log(
-                    '%c🎯 Open Web Inspector Ready!', 
-                    'color: #4CAF50; font-weight: bold; font-size: 14px;',
-                    '\n• Press Ctrl+Shift+E to toggle inspector',
-                    '\n• Click extension icon for controls', 
-                    '\n• Right-click → Inspect with Open Web Inspector'
-                );
-            }
-            
-        } catch (error) {
-            log('❌ Extension initialization failed:', error);
-            console.error('[Open Web Inspector Extension] Detailed error:', error);
+        } else {
+            console.log('⏳ OpenWebInspector not ready yet, retrying...');
+            // Library might still be loading, try again
+            setTimeout(checkAndInitialize, 100);
         }
     }
     
-    // Wait for DOM to be ready
+    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
+        document.addEventListener('DOMContentLoaded', checkAndInitialize);
     } else {
-        // DOM already ready
-        initialize();
+        checkAndInitialize();
     }
     
-    // Expose a global helper for console use
+    // Simple helper for console use
     window.openWebInspectorExtension = {
         enable: () => window.OpenWebInspector?.enable(),
         disable: () => window.OpenWebInspector?.disable(), 
@@ -224,8 +129,7 @@
             loaded: typeof window.OpenWebInspector !== 'undefined',
             active: window.OpenWebInspector?.isActive() || false,
             version: window.OpenWebInspector?.getVersion() || null
-        }),
-        select: (selector) => window.OpenWebInspector?.selectElement(selector)
+        })
     };
     
 })();

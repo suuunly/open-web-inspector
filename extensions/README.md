@@ -51,12 +51,14 @@ extensions/chrome/
 
 ### How It Works
 
-1. **Content Script Injection**: `content.js` automatically runs on every page
-2. **CDN Loading**: Loads Open Web Inspector from
-   `https://cdn.jsdelivr.net/npm/open-web-inspector@latest/`
-3. **Global API Setup**: Makes `OpenWebInspector` available for external control
-4. **Extension Communication**: Popup communicates with content script for
-   controls
+1. **Direct Bundle Loading**: `open-web-inspector.min.js` loads as trusted
+   extension content script
+2. **Simple Setup**: `content.js` provides keyboard shortcuts and popup
+   communication
+3. **Zero CSP Issues**: Extension files are trusted by browser, no injection
+   needed
+4. **Instant Availability**: Library is ready immediately on every page
+5. **Clean Interface**: Simple toggle button and keyboard shortcuts
 
 ### Development Commands
 

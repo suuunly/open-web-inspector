@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Open Web Inspector Test</title>
+</head>
+<body>
+    <h1>Manual Test Page</h1>
+    <p>This page tests if Open Web Inspector loads properly when manually included.</p>
+    
+    <button onclick="checkStatus()">Check Status</button>
+    <button onclick="testEnable()">Test Enable</button>
+    
+    <div id="results"></div>
+    
+    <script src="dist/open-web-inspector.min.js"></script>
+    <script>
+        function log(msg) {
+            document.getElementById('results').innerHTML += '<div>' + msg + '</div>';
+            console.log(msg);
+        }
+        
+        setTimeout(() => {
+            log('OpenWebInspector type: ' + typeof OpenWebInspector);
+            log('Window.OpenWebInspector: ' + (window.OpenWebInspector ? 'EXISTS' : 'MISSING'));
+            
+            if (window.OpenWebInspector) {
+                log('OpenWebInspector.enable type: ' + typeof OpenWebInspector.enable);
+                log('OpenWebInspector.getVersion: ' + (OpenWebInspector.getVersion ? OpenWebInspector.getVersion() : 'NO VERSION'));
+            }
+        }, 100);
+        
+        function checkStatus() {
+            log('=== MANUAL CHECK ===');
+            log('OpenWebInspector exists: ' + (typeof OpenWebInspector !== 'undefined'));
+            log('OpenWebInspector.enable exists: ' + (typeof OpenWebInspector?.enable === 'function'));
+            log('Document ready state: ' + document.readyState);
+        }
+        
+        function testEnable() {
+            if (typeof OpenWebInspector !== 'undefined' && OpenWebInspector.enable) {
+                OpenWebInspector.enable();
+                log('OpenWebInspector.enable() called!');
+            } else {
+                log('OpenWebInspector not available!');
+            }
+        }
+    </script>
+</body>
+</html>

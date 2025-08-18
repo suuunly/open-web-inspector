@@ -5,8 +5,9 @@
 ## 🎯 Overview
 
 This repository includes a fully automated GitHub Actions workflow that:
+
 - ✅ **Builds** the extension automatically
-- ✅ **Packages** for Chrome Web Store submission  
+- ✅ **Packages** for Chrome Web Store submission
 - ✅ **Publishes** directly to Chrome Web Store
 - ✅ **Updates** version numbers automatically
 - ✅ **Triggers** on GitHub releases or manual dispatch
@@ -16,6 +17,7 @@ This repository includes a fully automated GitHub Actions workflow that:
 ### 1. **Chrome Web Store API Setup**
 
 #### A. **Create Google Cloud Project**
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project: `open-web-inspector-automation`
 3. Enable **Chrome Web Store API**:
@@ -23,6 +25,7 @@ This repository includes a fully automated GitHub Actions workflow that:
    - Click "Enable"
 
 #### B. **Create OAuth 2.0 Credentials**
+
 1. Go to **APIs & Services** → **Credentials**
 2. Click **+ CREATE CREDENTIALS** → **OAuth 2.0 Client IDs**
 3. Configure:
@@ -31,6 +34,7 @@ This repository includes a fully automated GitHub Actions workflow that:
 4. Download the JSON credentials file
 
 #### C. **Get Refresh Token**
+
 1. Install the Chrome Web Store upload tool:
    ```bash
    npm install -g chrome-webstore-upload-cli
@@ -51,21 +55,25 @@ Add these secrets to your GitHub repository:
 
 **Go to**: Repository → Settings → Secrets and variables → Actions
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `CHROME_EXTENSION_ID` | Your extension ID from Chrome Web Store | `abcdefghijklmnopqrstuv` |
-| `CHROME_CLIENT_ID` | OAuth 2.0 Client ID | `123456789-abc.apps.googleusercontent.com` |
-| `CHROME_CLIENT_SECRET` | OAuth 2.0 Client Secret | `GOCSPX-abcdefghijklmnop` |
-| `CHROME_REFRESH_TOKEN` | OAuth 2.0 Refresh Token | `1//abc123...` |
+| Secret Name            | Description                             | Example                                    |
+| ---------------------- | --------------------------------------- | ------------------------------------------ |
+| `CHROME_EXTENSION_ID`  | Your extension ID from Chrome Web Store | `abcdefghijklmnopqrstuv`                   |
+| `CHROME_CLIENT_ID`     | OAuth 2.0 Client ID                     | `123456789-abc.apps.googleusercontent.com` |
+| `CHROME_CLIENT_SECRET` | OAuth 2.0 Client Secret                 | `GOCSPX-abcdefghijklmnop`                  |
+| `CHROME_REFRESH_TOKEN` | OAuth 2.0 Refresh Token                 | `1//abc123...`                             |
 
 ### 3. **Extension ID Setup**
 
 #### **For New Extensions:**
-1. Create a draft extension in [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
+
+1. Create a draft extension in
+   [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
 2. Upload the package manually once to get the Extension ID
-3. Copy the ID from the URL: `https://chrome.google.com/webstore/detail/[EXTENSION_ID]`
+3. Copy the ID from the URL:
+   `https://chrome.google.com/webstore/detail/[EXTENSION_ID]`
 
 #### **For Existing Extensions:**
+
 - Use your existing extension ID
 
 ## 🚀 Usage
@@ -77,7 +85,7 @@ Add these secrets to your GitHub repository:
    # Tag and create release
    git tag v1.1.0
    git push origin v1.1.0
-   
+
    # Or use GitHub UI to create release
    ```
 
@@ -99,22 +107,26 @@ Add these secrets to your GitHub repository:
 ## 📊 Workflow Features
 
 ### **🎯 Smart Version Management**
+
 - Automatically extracts version from Git tags
-- Updates `manifest.json` and `popup.html` 
+- Updates `manifest.json` and `popup.html`
 - Maintains version consistency across all files
 
 ### **📦 Professional Packaging**
+
 - Excludes development files (`.md`, docs, etc.)
 - Creates clean, store-ready ZIP packages
 - Verifies package contents before upload
 
 ### **🔍 Comprehensive Logging**
+
 - Detailed build process logging
 - Package content verification
 - Success/failure notifications
 - Actionable error messages
 
 ### **📈 Release Summaries**
+
 - Beautiful GitHub Actions summary
 - Direct links to Chrome Web Store
 - Clear next steps and monitoring guidance
@@ -122,16 +134,19 @@ Add these secrets to your GitHub repository:
 ## 🛡️ Security & Best Practices
 
 ### **✅ Secrets Management**
+
 - All API credentials stored securely in GitHub Secrets
 - No sensitive data in code or logs
 - OAuth 2.0 for secure authentication
 
 ### **✅ Version Control**
+
 - Automatic version bumping prevents conflicts
 - Git tags trigger releases for traceability
 - Artifact preservation for rollbacks
 
 ### **✅ Error Handling**
+
 - Comprehensive error reporting
 - Common issues documented with solutions
 - Graceful failure with actionable feedback
@@ -141,28 +156,37 @@ Add these secrets to your GitHub repository:
 ### **Common Issues:**
 
 #### **Authentication Errors**
+
 ```
 Error: Invalid credentials
 ```
+
 **Solutions:**
+
 - Verify all GitHub Secrets are correctly set
 - Regenerate refresh token if expired
 - Check Chrome Web Store API is enabled
 
 #### **Version Conflicts**
+
 ```
 Error: Version already exists
 ```
+
 **Solutions:**
+
 - Ensure new version number is higher than current
 - Check Chrome Web Store for existing versions
 - Use proper semantic versioning (x.y.z)
 
 #### **Package Issues**
+
 ```
 Error: Invalid manifest
 ```
+
 **Solutions:**
+
 - Verify manifest.json syntax is valid
 - Check all required permissions are included
 - Ensure icon files exist and are properly sized
@@ -170,11 +194,13 @@ Error: Invalid manifest
 ## 📈 Monitoring & Analytics
 
 ### **Chrome Web Store Dashboard**
+
 - Monitor review status (1-3 business days)
 - Track installation metrics
 - Review user feedback and ratings
 
 ### **GitHub Actions**
+
 - View build history and logs
 - Download package artifacts
 - Monitor automation success rates
@@ -182,6 +208,7 @@ Error: Invalid manifest
 ## 🎉 Success Metrics
 
 **With this automation, you can expect:**
+
 - ⚡ **95% faster** publishing (minutes vs hours)
 - 🛡️ **100% consistent** packaging and versioning
 - 📊 **Zero manual errors** in the publishing process
@@ -197,4 +224,5 @@ Error: Invalid manifest
 
 ---
 
-**🎊 Congratulations! You now have a fully automated Chrome Web Store publishing pipeline!** 🚀
+**🎊 Congratulations! You now have a fully automated Chrome Web Store publishing
+pipeline!** 🚀

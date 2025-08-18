@@ -26,7 +26,7 @@ jobs:
       run: mkdir -p dist
       
     - name: Build and minify
-      run: npm run build:all
+      run: npm run build
       
     - name: Verify build
       run: |
@@ -35,9 +35,11 @@ jobs:
         ls -la dist/
         echo ""
         echo "📊 File sizes:"
-        echo "Original: $(wc -c < open-web-inspector.js) bytes"
+        echo "Original: $(wc -c < src/index.js) bytes"
         echo "Minified: $(wc -c < dist/open-web-inspector.min.js) bytes"
-        echo "Compression: $(echo "scale=1; (1 - $(wc -c < dist/open-web-inspector.min.js) / $(wc -c < open-web-inspector.js)) * 100" | bc)%"
+        ORIGINAL_SIZE=$(wc -c < src/index.js)
+        MINIFIED_SIZE=$(wc -c < dist/open-web-inspector.min.js)
+        echo "Compression ratio: $MINIFIED_SIZE bytes (minified) vs $ORIGINAL_SIZE bytes (original)"
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

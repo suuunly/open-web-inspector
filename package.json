@@ -19,6 +19,12 @@
     "version:minor": "npm version minor && npm run build",
     "version:major": "npm version major && npm run build",
     "release": "npm run build && git add dist/ && git commit -m \"🚀 Release build files\" && git push",
+    "release:chrome": "node scripts/chrome-store-publish.js",
+    "release:chrome:publish": "node scripts/chrome-store-publish.js --publish",
+    "publish:chrome": "npm run build && node scripts/chrome-store-publish.js --publish",
+    "package:chrome": "npm run build && node scripts/chrome-store-publish.js",
+    "automation:test": "echo \"🧪 Testing Chrome Web Store automation...\" && npm run package:chrome",
+    "automation:setup": "echo \"📋 Chrome Web Store automation setup instructions in CHROME_WEB_STORE_AUTOMATION.md\"",
     "size": "echo \"📦 Build sizes:\" && ls -lah dist/*.js | awk '{print $5, $9}'"
   },
   "keywords": [

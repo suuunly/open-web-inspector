@@ -1,0 +1,144 @@
+name: 🚀 Chrome Web Store Auto-Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.1.0)'
+        required: true
+        default: '1.1.0'
+      draft:
+        description: 'Publish as draft'
+        type: boolean
+        default: false
+
+jobs:
+  publish-to-chrome-store:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📦 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📥 Install Dependencies
+      run: npm ci
+      
+    - name: 🏗️ Build Extension
+      run: |
+        echo "🎯 Building Open Web Inspector Extension..."
+        npm run build
+        echo "✅ Build complete!"
+        
+    - name: 📋 Extract Version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION=${VERSION#v}  # Remove 'v' prefix if present
+        else
+          VERSION="${{ github.event.inputs.version }}"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "🏷️ Publishing version: $VERSION"
+        
+    - name: 🔄 Update Extension Version
+      run: |
+        VERSION="${{ steps.version.outputs.VERSION }}"
+        echo "📝 Updating manifest.json to version $VERSION..."
+        
+        # Update manifest.json version
+        sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" extensions/chrome/manifest.json
+        
+        # Update popup.html version
+        sed -i "s/Extension v[0-9.]*/Extension v$VERSION/" extensions/chrome/popup.html
+        
+        echo "✅ Version updated to $VERSION"
+        
+    - name: 📦 Create Chrome Extension Package
+      run: |
+        echo "📦 Creating Chrome Web Store package..."
+        cd extensions/chrome
+        
+        # Create clean package excluding docs and development files
+        zip -r "../../open-web-inspector-chrome-extension-v${{ steps.version.outputs.VERSION }}.zip" . \
+          -x "*.md" "*.DS_Store" "README*" "ICON_REQUIREMENTS*" "*.log"
+        
+        cd ../..
+        
+        # Verify package contents
+        echo "📋 Package contents:"
+        unzip -l "open-web-inspector-chrome-extension-v${{ steps.version.outputs.VERSION }}.zip"
+        
+        echo "✅ Package created successfully!"
+        
+    - name: 🚀 Publish to Chrome Web Store
+      uses: mnao305/chrome-extension-upload@v4.0.1
+      with:
+        file-path: ./open-web-inspector-chrome-extension-v${{ steps.version.outputs.VERSION }}.zip
+        extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+        client-id: ${{ secrets.CHROME_CLIENT_ID }}
+        client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+        refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        publish: ${{ github.event.inputs.draft != 'true' }}
+        
+    - name: 📊 Create Release Summary
+      run: |
+        cat << EOF >> $GITHUB_STEP_SUMMARY
+        ## 🚀 Chrome Web Store Publication Complete!
+        
+        ### 📦 **Extension Details:**
+        - **Version:** \`${{ steps.version.outputs.VERSION }}\`
+        - **Package:** \`open-web-inspector-chrome-extension-v${{ steps.version.outputs.VERSION }}.zip\`
+        - **Trigger:** ${{ github.event_name }}
+        - **Published:** ${{ github.event.inputs.draft != 'true' && '✅ Live' || '📝 Draft' }}
+        
+        ### 🎯 **What's New:**
+        - Natural Language AI Interface
+        - Enhanced UI with gradient design
+        - Professional logo integration
+        - Improved keyboard shortcuts
+        
+        ### 🔗 **Links:**
+        - **Chrome Web Store:** [View Extension](https://chrome.google.com/webstore/detail/${{ secrets.CHROME_EXTENSION_ID }})
+        - **Release Notes:** [View Release](${{ github.event.release.html_url }})
+        
+        ### 📈 **Next Steps:**
+        1. Monitor Chrome Web Store review process (1-3 business days)
+        2. Check user feedback and ratings
+        3. Prepare marketing materials
+        4. Monitor analytics and usage metrics
+        
+        **🎉 Congratulations! Your extension is now live on the Chrome Web Store!**
+        EOF
+        
+    - name: 🎉 Success Notification
+      if: success()
+      run: |
+        echo "🎊 SUCCESS! Extension v${{ steps.version.outputs.VERSION }} published to Chrome Web Store!"
+        echo "🔗 Check status at: https://chrome.google.com/webstore/detail/${{ secrets.CHROME_EXTENSION_ID }}"
+        
+    - name: ⚠️ Failure Notification  
+      if: failure()
+      run: |
+        echo "❌ Publication failed! Check the logs above for details."
+        echo "💡 Common issues:"
+        echo "   - Check Chrome Web Store API credentials"
+        echo "   - Verify extension ID is correct"
+        echo "   - Ensure manifest.json is valid"
+        echo "   - Check for policy violations"
+        
+    - name: 📤 Upload Package Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: chrome-extension-v${{ steps.version.outputs.VERSION }}
+        path: open-web-inspector-chrome-extension-v${{ steps.version.outputs.VERSION }}.zip
+        retention-days: 30

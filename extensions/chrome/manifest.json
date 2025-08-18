@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Open Web Inspector - AI Element Inspector",
   "version": "1.1.0",
-  "description": "Revolutionary AI-controllable web element inspector with natural language interface. Type 'Make this text red' and get perfect CSS instructions!",
+  "description": "AI-controllable web element inspector with natural language interface. Type 'Make this text red' and get perfect CSS instructions!",
   "permissions": [
     "activeTab",
     "scripting",

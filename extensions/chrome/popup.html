@@ -25,6 +25,16 @@
             font-size: 18px;
             font-weight: 600;
             color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .header .logo {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
         }
         
         .toggle-btn {
@@ -108,7 +118,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>🎯 Open Web Inspector</h1>
+        <h1><img src="icons/store-logo.png" alt="Open Web Inspector" class="logo"> Open Web Inspector</h1>
     </div>
     
     <button id="toggleBtn" class="toggle-btn inspect">
@@ -130,7 +140,7 @@
     </div>
     
     <div class="version">
-        Extension v1.0.0
+        Extension v1.1.0
     </div>
     
     <script src="popup.js"></script>

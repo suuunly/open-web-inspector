@@ -1517,6 +1517,22 @@
             
             // Start drag handler (works for both mouse and touch)
             const handleDragStart = (e) => {
+                // Check if the target is an interactive element (button, input, etc.)
+                const target = e.target || e.touches?.[0]?.target;
+                if (target) {
+                    const isInteractive = target.tagName === 'BUTTON' || 
+                                        target.tagName === 'INPUT' || 
+                                        target.tagName === 'SELECT' || 
+                                        target.tagName === 'TEXTAREA' ||
+                                        target.classList.contains('open-web-inspector-panel-close') ||
+                                        target.closest('button, input, select, textarea');
+                    
+                    // Don't start dragging if touching an interactive element
+                    if (isInteractive) {
+                        return;
+                    }
+                }
+                
                 isDragging = true;
                 const coords = getEventCoords(e);
                 startX = coords.x;

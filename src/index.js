@@ -1318,13 +1318,15 @@
             this.closePanels();
             
             // Calculate smart positioning (corner placement)
-            const { x, y } = this.calculatePanelPosition();
+            const { x, y, width, height } = this.calculatePanelPosition();
             
             // Create CSS panel
             this.cssPanel = document.createElement('div');
             this.cssPanel.className = 'open-web-inspector-panel';
             this.cssPanel.style.left = x + 'px';
             this.cssPanel.style.top = y + 'px';
+            this.cssPanel.style.width = width + 'px';
+            this.cssPanel.style.maxHeight = height + 'px';
             
             this.cssPanel.innerHTML = `
                 <div class="open-web-inspector-panel-header">
@@ -1355,13 +1357,15 @@
             this.closePanels();
             
             // Calculate smart positioning
-            const { x, y } = this.calculatePanelPosition();
+            const { x, y, width, height } = this.calculatePanelPosition();
             
             // Create HTML panel
             this.htmlPanel = document.createElement('div');
             this.htmlPanel.className = 'open-web-inspector-panel';
             this.htmlPanel.style.left = x + 'px';
             this.htmlPanel.style.top = y + 'px';
+            this.htmlPanel.style.width = width + 'px';
+            this.htmlPanel.style.maxHeight = height + 'px';
             
             this.htmlPanel.innerHTML = `
                 <div class="open-web-inspector-panel-header">
@@ -1408,24 +1412,40 @@
         }
 
         calculatePanelPosition() {
-            // Smart corner positioning to avoid blocking content
+            // Smart corner positioning to avoid blocking content with responsive sizing
             const padding = 20;
-            const panelWidth = 450;
-            const panelHeight = 600;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Responsive panel dimensions
+            let panelWidth, panelHeight;
+            if (viewportWidth <= 480) {
+                // Mobile phones: take most of screen width
+                panelWidth = Math.min(viewportWidth - (padding * 2), 350);
+                panelHeight = Math.min(viewportHeight - (padding * 3), 500);
+            } else if (viewportWidth <= 768) {
+                // Tablets: moderate sizing
+                panelWidth = Math.min(viewportWidth * 0.8, 400);
+                panelHeight = Math.min(viewportHeight * 0.8, 550);
+            } else {
+                // Desktop: original size
+                panelWidth = 450;
+                panelHeight = 600;
+            }
             
             // Try top-right corner first
-            let x = window.innerWidth - panelWidth - padding;
+            let x = viewportWidth - panelWidth - padding;
             let y = padding;
             
             // If FAB is in the way, try bottom-right
             if (this.fabPopup) {
                 const fabRect = this.fabPopup.getBoundingClientRect();
                 if (fabRect.left < x + panelWidth && fabRect.top < y + panelHeight) {
-                    y = Math.max(padding, window.innerHeight - panelHeight - padding);
+                    y = Math.max(padding, viewportHeight - panelHeight - padding);
                 }
             }
             
-            return { x, y };
+            return { x, y, width: panelWidth, height: panelHeight };
         }
 
         setupPanelHandlers(panel, element) {
@@ -1467,30 +1487,101 @@
             let isDragging = false;
             let startX, startY, startLeft, startTop;
             
-            header.addEventListener('mousedown', (e) => {
+            // Helper function to get coordinates from mouse or touch event
+            const getEventCoords = (e) => {
+                if (e.touches && e.touches.length > 0) {
+                    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+                return { x: e.clientX, y: e.clientY };
+            };
+            
+            // Helper function to constrain position within viewport
+            const constrainToViewport = (left, top) => {
+                const panelRect = panel.getBoundingClientRect();
+                const panelWidth = panelRect.width;
+                const panelHeight = panelRect.height;
+                const padding = 10; // Minimum distance from edges
+                
+                // Constrain horizontal position
+                const maxLeft = window.innerWidth - panelWidth - padding;
+                const minLeft = padding;
+                left = Math.max(minLeft, Math.min(maxLeft, left));
+                
+                // Constrain vertical position
+                const maxTop = window.innerHeight - panelHeight - padding;
+                const minTop = padding;
+                top = Math.max(minTop, Math.min(maxTop, top));
+                
+                return { left, top };
+            };
+            
+            // Start drag handler (works for both mouse and touch)
+            const handleDragStart = (e) => {
+                // Check if the target is an interactive element (button, input, etc.)
+                const target = e.target || e.touches?.[0]?.target;
+                if (target) {
+                    const isInteractive = target.tagName === 'BUTTON' || 
+                                        target.tagName === 'INPUT' || 
+                                        target.tagName === 'SELECT' || 
+                                        target.tagName === 'TEXTAREA' ||
+                                        target.classList.contains('open-web-inspector-panel-close') ||
+                                        target.closest('button, input, select, textarea');
+                    
+                    // Don't start dragging if touching an interactive element
+                    if (isInteractive) {
+                        return;
+                    }
+                }
+                
                 isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = parseInt(panel.style.left);
-                startTop = parseInt(panel.style.top);
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', handleMouseUp);
+                const coords = getEventCoords(e);
+                startX = coords.x;
+                startY = coords.y;
+                startLeft = parseInt(panel.style.left) || 0;
+                startTop = parseInt(panel.style.top) || 0;
+                
+                // Add event listeners for both mouse and touch
+                document.addEventListener('mousemove', handleDragMove);
+                document.addEventListener('mouseup', handleDragEnd);
+                document.addEventListener('touchmove', handleDragMove, { passive: false });
+                document.addEventListener('touchend', handleDragEnd);
+                
                 e.preventDefault();
-            });
+            };
             
-            const handleMouseMove = (e) => {
+            // Move drag handler (works for both mouse and touch)
+            const handleDragMove = (e) => {
                 if (!isDragging) return;
-                const deltaX = e.clientX - startX;
-                const deltaY = e.clientY - startY;
-                panel.style.left = (startLeft + deltaX) + 'px';
-                panel.style.top = (startTop + deltaY) + 'px';
+                
+                const coords = getEventCoords(e);
+                const deltaX = coords.x - startX;
+                const deltaY = coords.y - startY;
+                
+                const newLeft = startLeft + deltaX;
+                const newTop = startTop + deltaY;
+                
+                // Apply viewport constraints
+                const constrained = constrainToViewport(newLeft, newTop);
+                
+                panel.style.left = constrained.left + 'px';
+                panel.style.top = constrained.top + 'px';
+                
+                // Prevent scrolling on touch devices
+                e.preventDefault();
             };
             
-            const handleMouseUp = () => {
+            // End drag handler (works for both mouse and touch)
+            const handleDragEnd = () => {
                 isDragging = false;
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
+                document.removeEventListener('mousemove', handleDragMove);
+                document.removeEventListener('mouseup', handleDragEnd);
+                document.removeEventListener('touchmove', handleDragMove);
+                document.removeEventListener('touchend', handleDragEnd);
             };
+            
+            // Add event listeners for both mouse and touch events
+            header.addEventListener('mousedown', handleDragStart);
+            header.addEventListener('touchstart', handleDragStart, { passive: false });
         }
 
         openCodePanel(element) {
@@ -1498,15 +1589,15 @@
             this.closePanels();
             
             // Calculate smart positioning (larger panel needs more space)
-            const { x, y } = this.calculateCodePanelPosition();
+            const { x, y, width, height } = this.calculateCodePanelPosition();
             
             // Create unified code panel
             this.codePanel = document.createElement('div');
             this.codePanel.className = 'open-web-inspector-panel';
             this.codePanel.style.left = x + 'px';
             this.codePanel.style.top = y + 'px';
-            this.codePanel.style.width = '650px'; // Wider for combined content
-            this.codePanel.style.maxHeight = '700px'; // Taller for combined content
+            this.codePanel.style.width = width + 'px'; // Responsive width
+            this.codePanel.style.maxHeight = height + 'px'; // Responsive height
             
             this.codePanel.innerHTML = `
                 <div class="open-web-inspector-panel-header">
@@ -1580,24 +1671,40 @@
         }
 
         calculateCodePanelPosition() {
-            // Smart positioning for larger panel
+            // Smart positioning for larger panel with responsive sizing
             const padding = 20;
-            const panelWidth = 650;
-            const panelHeight = 700;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Responsive panel dimensions for code panel
+            let panelWidth, panelHeight;
+            if (viewportWidth <= 480) {
+                // Mobile phones: take almost full width, leave room for padding
+                panelWidth = Math.min(viewportWidth - (padding * 2), 360);
+                panelHeight = Math.min(viewportHeight - (padding * 3), 550);
+            } else if (viewportWidth <= 768) {
+                // Tablets: take significant portion
+                panelWidth = Math.min(viewportWidth * 0.85, 500);
+                panelHeight = Math.min(viewportHeight * 0.85, 600);
+            } else {
+                // Desktop: original large size
+                panelWidth = 650;
+                panelHeight = 700;
+            }
             
             // Try top-right corner first
-            let x = window.innerWidth - panelWidth - padding;
+            let x = viewportWidth - panelWidth - padding;
             let y = padding;
             
             // If FAB is in the way, try bottom-right
             if (this.fabPopup) {
                 const fabRect = this.fabPopup.getBoundingClientRect();
                 if (fabRect.left < x + panelWidth && fabRect.top < y + panelHeight) {
-                    y = Math.max(padding, window.innerHeight - panelHeight - padding);
+                    y = Math.max(padding, viewportHeight - panelHeight - padding);
                 }
             }
             
-            return { x, y };
+            return { x, y, width: panelWidth, height: panelHeight };
         }
 
         setupCodePanelHandlers(panel, element) {

@@ -39,10 +39,10 @@ npm run package:extension  # Create distributable .zip file
 │   ├── open-web-inspector.js              # Dev build
 │   └── open-web-inspector.min.js          # Prod build
 ├── extensions/chrome/
-│   ├── dist/                              # Generated (gitignored)
-│   │   └── open-web-inspector.min.js      # Copied from root dist/
-│   ├── html2canvas.min.js                 # Third-party dependency
-│   ├── manifest.json                      # References dist/open-web-inspector.min.js
+│   ├── lib/                               # Dependencies (committed)
+│   │   ├── html2canvas.min.js             # Third-party library
+│   │   └── open-web-inspector.min.js      # Built from root dist/
+│   ├── manifest.json                      # References lib/ files
 │   └── ...                               # Other extension source files
 └── open-web-inspector-chrome-extension.zip # Generated package
 ```

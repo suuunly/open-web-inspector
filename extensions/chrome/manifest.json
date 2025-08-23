@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Open Web Inspector - AI Element Inspector",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "AI-controllable web element inspector with natural language interface. Type 'Make this text red' and get perfect CSS instructions!",
   "permissions": [
     "activeTab",
@@ -23,7 +23,7 @@
       ],
       "js": [
         "html2canvas.min.js",
-        "open-web-inspector.min.js",
+        "dist/open-web-inspector.min.js",
         "content.js"
       ],
       "run_at": "document_idle"

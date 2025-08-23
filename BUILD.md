@@ -1,18 +1,22 @@
 # 🏗️ Build Process
 
 ## Overview
-This project uses a **build-on-demand** approach where generated files are not committed to git. All builds are generated via npm scripts.
+
+This project uses a **build-on-demand** approach where generated files are not
+committed to git. All builds are generated via npm scripts.
 
 ## Quick Start
 
 ### For Library Development
+
 ```bash
 npm install        # Install dependencies
 npm run build      # Build both dev and prod versions
 npm run dev        # Start development server
 ```
 
-### For Chrome Extension Development  
+### For Chrome Extension Development
+
 ```bash
 npm run dev:extension      # Build extension for local testing
 npm run package:extension  # Create distributable .zip file
@@ -20,12 +24,12 @@ npm run package:extension  # Create distributable .zip file
 
 ## Build Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `npm run build` | Build library (dev + prod versions) |
-| `npm run build:extension` | Build extension with latest code |
-| `npm run package:extension` | Build + package extension as zip |
-| `npm run clean` | Remove all build artifacts |
+| Script                      | Purpose                             |
+| --------------------------- | ----------------------------------- |
+| `npm run build`             | Build library (dev + prod versions) |
+| `npm run build:extension`   | Build extension with latest code    |
+| `npm run package:extension` | Build + package extension as zip    |
+| `npm run clean`             | Remove all build artifacts          |
 
 ## File Structure
 
@@ -35,8 +39,11 @@ npm run package:extension  # Create distributable .zip file
 │   ├── open-web-inspector.js              # Dev build
 │   └── open-web-inspector.min.js          # Prod build
 ├── extensions/chrome/
-│   ├── open-web-inspector.min.js          # Copied from dist/
-│   └── ...                               # Other extension files
+│   ├── dist/                              # Generated (gitignored)
+│   │   └── open-web-inspector.min.js      # Copied from root dist/
+│   ├── html2canvas.min.js                 # Third-party dependency
+│   ├── manifest.json                      # References dist/open-web-inspector.min.js
+│   └── ...                               # Other extension source files
 └── open-web-inspector-chrome-extension.zip # Generated package
 ```
 
@@ -45,7 +52,7 @@ npm run package:extension  # Create distributable .zip file
 For automated deployments, your pipeline should:
 
 1. **Install dependencies:** `npm ci`
-2. **Build artifacts:** `npm run build`  
+2. **Build artifacts:** `npm run build`
 3. **Package extension:** `npm run package:extension`
 4. **Deploy:** Use generated zip file
 
@@ -57,7 +64,8 @@ For automated deployments, your pipeline should:
 4. **Commit only source files** (build artifacts are gitignored)
 
 This ensures:
-- ✅ Clean git history 
+
+- ✅ Clean git history
 - ✅ No merge conflicts on generated files
 - ✅ Always fresh builds
 - ✅ Consistent build environment

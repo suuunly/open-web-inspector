@@ -2,6 +2,8 @@
 // The library is already loaded via manifest content_scripts
 
 console.log('🚀 Content script starting to load...');
+console.log('🔍 html2canvas available:', typeof window.html2canvas);
+console.log('🔍 OpenWebInspector available:', typeof window.OpenWebInspector);
 
 (function() {
     'use strict';
@@ -61,37 +63,15 @@ console.log('🚀 Content script starting to load...');
     // Note: Keyboard shortcuts are handled by the main OpenWebInspector library
     // No need to duplicate them here - the library already sets up Ctrl+Shift+E and Escape
     
-    // Handle CSP errors from library's html2canvas loading
+    // Log any script errors for debugging
     window.addEventListener('error', (e) => {
-        if (e.message && (e.message.includes('html2canvas') || e.message.includes('script') || e.message.includes('CSP'))) {
-            // Silently handle CSP-related errors from the library
-            e.preventDefault();
-            return false;
+        console.error('🚨 Script error detected:', e.message, e.filename, e.lineno);
+        if (e.message && (e.message.includes('html2canvas') || e.message.includes('OpenWebInspector'))) {
+            console.error('🚨 Extension script error:', e.error);
         }
     });
     
-    // Prevent dynamic script loading to avoid CSP issues
-    const originalCreateElement = document.createElement;
-    document.createElement = function(tagName) {
-        const element = originalCreateElement.call(this, tagName);
-        if (tagName.toLowerCase() === 'script') {
-            // Override script loading to prevent CSP violations
-            Object.defineProperty(element, 'src', {
-                set: function(value) {
-                    if (value && value.includes('html2canvas')) {
-                        console.log('🚫 Blocked html2canvas loading due to CSP');
-                        return;
-                    }
-                    // Allow other scripts
-                    this.setAttribute('src', value);
-                },
-                get: function() {
-                    return this.getAttribute('src');
-                }
-            });
-        }
-        return element;
-    };
+    // html2canvas is now bundled locally via manifest.json - no dynamic loading needed
     
     // Wait for OpenWebInspector to be ready, then initialize
     function checkAndInitialize() {
@@ -99,13 +79,10 @@ console.log('🚀 Content script starting to load...');
             console.log('🎯 Open Web Inspector Ready!');
             console.log('📋 Available methods:', Object.keys(window.OpenWebInspector));
             console.log('🔍 Initial state - isActive:', window.OpenWebInspector.isActive());
+            console.log('📦 Extension version:', window.OpenWebInspector.getVersion?.() || 'unknown');
+            console.log('🖼️ html2canvas available:', typeof window.html2canvas);
             
-            // Disable screenshot functionality to prevent CSP errors
-            if (window.OpenWebInspector.takeElementScreenshot) {
-                window.OpenWebInspector.takeElementScreenshot = () => {
-                    console.log('Screenshot disabled due to CSP restrictions');
-                };
-            }
+            // Screenshot functionality should work now with bundled html2canvas
         } else {
             console.log('⏳ OpenWebInspector not ready yet, retrying...');
             // Library might still be loading, try again

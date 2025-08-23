@@ -2258,20 +2258,14 @@ ${this.generateCSSModificationGuidance(element)}`;
 
         async loadHtml2Canvas() {
             return new Promise((resolve, reject) => {
-                // Check if already loaded
+                // Check if html2canvas is available (should be bundled with extension)
                 if (window.html2canvas) {
                     resolve();
                     return;
                 }
                 
-                // Create script tag
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                script.onload = () => resolve();
-                script.onerror = () => reject(new Error('Failed to load html2canvas library'));
-                
-                // Add to head
-                document.head.appendChild(script);
+                // If not available, reject with error
+                reject(new Error('html2canvas library not available - should be bundled with extension'));
             });
         }
 
